@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chaitra R — Portfolio (Wireframe)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="nav">
+    <a href="#hero" class="logo">Chaitra R</a>
+    <nav class="links" id="menu">
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a href="#" class="btn btn-outline resume">Resume</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">☰</button>
+  </header>
+
+  <main>
+    <!-- 01 Hero -->
+    <section id="hero" class="section hero">
+      <div class="hero-text">
+        <p class="label">01 · Hero</p>
+        <h1>Hi, I'm Chaitra</h1>
+        <p class="role">[Your role] — Designer / Developer</p>
+        <p class="muted">A short line about what you do, who you help, and what makes your work different. Keep it to two lines.</p>
+        <div class="ctas">
+          <a href="#projects" class="btn btn-primary">View my work</a>
+          <a href="#contact" class="btn btn-outline">Contact me</a>
+        </div>
+      </div>
+      <div class="ph ph-circle">Photo / illustration</div>
+    </section>
+
+    <!-- 02 About -->
+    <section id="about" class="section alt">
+      <p class="label">02 · About</p>
+      <h2>About me</h2>
+      <div class="about">
+        <div class="ph ph-photo">Photo</div>
+        <div class="bio">
+          <span class="line w95"></span><span class="line w100"></span><span class="line w90"></span><span class="line w70"></span>
+          <span class="gap"></span>
+          <span class="line w95"></span><span class="line w80"></span>
+          <div class="stats">
+            <div class="stat"><strong>3+</strong><span>Years experience</span></div>
+            <div class="stat"><strong>15+</strong><span>Projects</span></div>
+            <div class="stat"><strong>10+</strong><span>Happy clients</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 Projects -->
+    <section id="projects" class="section">
+      <p class="label">03 · Projects</p>
+      <h2>Selected work</h2>
+      <div class="filters" id="filters">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="web">Web</button>
+        <button class="chip" data-filter="uiux">UI/UX</button>
+        <button class="chip" data-filter="other">Other</button>
+      </div>
+      <div class="grid" id="projectGrid">
+        <article class="card" data-category="web">
+          <div class="ph ph-thumb">Thumbnail</div>
+          <div class="card-body">
+            <h3>Project one</h3>
+            <span class="line w90"></span><span class="line w70"></span>
+            <div class="tags"><span class="chip sm">Web</span><span class="chip sm">Tag</span></div>
+            <a href="#" class="link">View case study →</a>
+          </div>
+        </article>
+        <article class="card" data-category="uiux">
+          <div class="ph ph-thumb">Thumbnail</div>
+          <div class="card-body">
+            <h3>Project two</h3>
+            <span class="line w90"></span><span class="line w70"></span>
+            <div class="tags"><span class="chip sm">UI/UX</span><span class="chip sm">Tag</span></div>
+            <a href="#" class="link">View case study →</a>
+          </div>
+        </article>
+        <article class="card" data-category="other">
+          <div class="ph ph-thumb">Thumbnail</div>
+          <div class="card-body">
+            <h3>Project three</h3>
+            <span class="line w90"></span><span class="line w70"></span>
+            <div class="tags"><span class="chip sm">Other</span><span class="chip sm">Tag</span></div>
+            <a href="#" class="link">View case study →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 04 Skills + 05 Experience -->
+    <section class="section alt two-col">
+      <div id="skills">
+        <p class="label">04 · Skills</p>
+        <h2>Skills and tools</h2>
+        <div class="skill-group"><h4>Design</h4><div class="chips"><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span></div></div>
+        <div class="skill-group"><h4>Development</h4><div class="chips"><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span></div></div>
+        <div class="skill-group"><h4>Tools</h4><div class="chips"><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span><span class="chip">Skill</span></div></div>
+      </div>
+      <div id="experience">
+        <p class="label">05 · Experience</p>
+        <h2>Experience</h2>
+        <ol class="timeline">
+          <li><h3>Role title · Company</h3><p class="date">2024 – Present</p><span class="line w90"></span><span class="line w70"></span></li>
+          <li><h3>Role title · Company</h3><p class="date">2022 – 2024</p><span class="line w90"></span><span class="line w70"></span></li>
+          <li><h3>Education · University</h3><p class="date">2018 – 2022</p><span class="line w90"></span><span class="line w70"></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 06 Contact -->
+    <section id="contact" class="section two-col">
+      <div>
+        <p class="label">06 · Contact</p>
+        <h2>Let's work together</h2>
+        <span class="line w90"></span><span class="line w70"></span>
+        <ul class="contact-links">
+          <li>Email — you@email.com</li>
+          <li>LinkedIn — /in/yourname</li>
+          <li>GitHub — @yourname</li>
+          <li>Dribbble / Behance — @yourname</li>
+        </ul>
+      </div>
+      <form class="form" id="contactForm" novalidate>
+        <label>Name<input type="text" name="name" placeholder="Your name" required></label>
+        <label>Email<input type="email" name="email" placeholder="name@email.com" required></label>
+        <label>Message<textarea name="message" rows="5" placeholder="Tell me about your project" required></textarea></label>
+        <p class="form-msg" id="formMsg" role="status"></p>
+        <button type="submit" class="btn btn-primary">Send message</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Chaitra R</span>
+    <a href="#hero">Back to top ↑</a>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
