@@ -11,14 +11,24 @@ Personal portfolio website — currently at the **wireframe** stage.
 | --- | --- |
 | ![Desktop wireframe](wireframes/desktop-home.png) | ![Mobile wireframe](wireframes/mobile-home.png) |
 
-## Clickable wireframe
+## Website
 
-`index.html` is a responsive, clickable version of the wireframe:
+`index.html` is the responsive site built from the wireframe, styled with a **soft and modern** lavender theme.
 
-- Sticky nav with smooth scrolling to each section
-- Hamburger menu on mobile (under 768px)
-- Working project filters (All / Web / UI/UX / Other)
-- Contact form with validation (demo only — it doesn't send messages yet)
+**Features**
+- Light and dark mode toggle (remembers your choice, follows system setting by default)
+- Typing effect in the hero that cycles through roles
+- Sections and cards fade in as you scroll
+- Stats count up when they come into view
+- Nav highlights the section you're reading, plus a scroll progress bar
+- Hamburger menu on mobile (under 768px), closes with Esc
+- Project filters (All / Web / UI/UX / Other) with a fade animation
+- Click-to-copy email with a toast notification
+- Contact form with validation and a character counter (demo only — it doesn't send messages yet)
+- Back-to-top button
+- Respects "reduce motion" accessibility settings
+
+**Theme colors** live as CSS variables at the top of `css/style.css` — change `--accent` to recolor the whole site.
 
 ### Test it locally
 
