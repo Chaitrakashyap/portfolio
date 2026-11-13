@@ -534,3 +534,56 @@ em.accent, .hero h1 em, .statement em, .big-statement em { font-weight: 500; }
   .init-card { padding: 22px; }
   .init-card .gallery { grid-template-columns: 1fr; }
 }
+
+/* ---------- Mobile-only layout (phones) ---------- */
+.stat .short, .exp-toggle { display: none; }
+@media (max-width: 640px) {
+  .section { padding: 48px 0; }
+  .row-head { margin-bottom: 20px; }
+  .muted-intro { font-size: 16px; margin-bottom: 28px; }
+
+  /* Intro: photo first, one paragraph, stats in one row */
+  .about-hero { padding: 32px 0 40px; }
+  .about-hero .hero-split { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+  .about-hero .hero-split > .reveal { width: 100%; min-width: 0; }
+  .row-head { flex-wrap: wrap; row-gap: 6px; }
+  .about-hero .portrait-wrap { order: -1; width: 112px; max-width: 112px; justify-self: auto; }
+  .about-hero .portrait-wrap::before { display: none; }
+  .about-hero .portrait { border-radius: 50%; aspect-ratio: 1 / 1; border: 3px solid rgba(255, 255, 255, 0.25); }
+  .about-hero h1 { font-size: 38px; }
+  .about-hero .role-line { font-size: 18px; min-height: 2.9em; }
+  .about-hero .lead { font-size: 16px; margin-top: 14px; }
+  .about-hero .lead-more { display: none; }
+  .about-hero .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 22px; }
+  .about-hero .stat { padding: 12px 10px; border-radius: 14px; }
+  .about-hero .stat strong { font-size: 26px; }
+  .stat .full { display: none; }
+  .stat .short { display: block; font-size: 12px; margin-top: 6px; line-height: 1.3; }
+  .subnav { flex-wrap: nowrap; overflow-x: auto; margin-top: 22px; padding-bottom: 4px; scrollbar-width: none; }
+  .subnav::-webkit-scrollbar { display: none; }
+  .subnav a { flex: 0 0 auto; }
+
+  /* Experience: headline only, details on tap */
+  .exp-grid .points { display: none; }
+  .exp-grid > li.open .points { display: flex; }
+  .exp-toggle { display: inline-flex; align-items: center; gap: 6px; grid-column: 1 / -1; justify-self: start; margin-top: 10px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--green); background: transparent; color: var(--green); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .exp-grid > li { padding: 18px 20px; }
+  .exp-grid h3 { font-size: 19px; }
+
+  /* Swipeable rows instead of long stacks */
+  .edu-grid, .skill-grid, #teaching-areas .work-grid, .rec-grid {
+    display: grid; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 82%;
+    gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin-left: calc(-1 * var(--pad-x)); margin-right: calc(-1 * var(--pad-x));
+    padding: 0 var(--pad-x) 10px; scroll-padding: 0 var(--pad-x); scrollbar-width: none;
+  }
+  .edu-grid::-webkit-scrollbar, .skill-grid::-webkit-scrollbar, #teaching-areas .work-grid::-webkit-scrollbar, .rec-grid::-webkit-scrollbar { display: none; }
+  .edu-grid > *, .skill-grid > *, #teaching-areas .work-grid > *, .rec-grid > * { scroll-snap-align: start; }
+  .edu-grid { grid-auto-columns: 62%; }
+  .edu-head { margin-top: 40px; }
+  .skill-grid > li { padding: 20px; }
+  .rec-card { padding: 20px; }
+  p.swipe-hint { display: block; font-size: 13px; font-weight: 600; color: var(--faint); margin: -8px 0 12px; }
+  .letter-card { margin-top: 20px; }
+}
+.swipe-hint { display: none; }

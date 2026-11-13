@@ -188,6 +188,31 @@ document.querySelectorAll('.gallery[data-preview]').forEach((gallery) => {
   gallery.after(btn);
 });
 
+// Experience cards: on phones the bullet points open on tap
+document.querySelectorAll('.exp-grid > li').forEach((item) => {
+  if (!item.querySelector('.points')) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'exp-toggle';
+  btn.setAttribute('aria-expanded', 'false');
+  btn.textContent = 'Show details +';
+  btn.addEventListener('click', () => {
+    const open = item.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? 'Hide details −' : 'Show details +';
+  });
+  item.appendChild(btn);
+});
+
+// Swipeable rows on phones get a small hint above them
+document.querySelectorAll('.edu-grid, .skill-grid, #teaching-areas .work-grid, .rec-grid').forEach((row) => {
+  const hint = document.createElement('p');
+  hint.className = 'swipe-hint';
+  hint.setAttribute('aria-hidden', 'true');
+  hint.textContent = 'Swipe to see more →';
+  row.before(hint);
+});
+
 // Copy email to clipboard
 const copyEmail = document.getElementById('copyEmail');
 const copyHint = document.getElementById('copyHint');
