@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ardu’s Lab: variables and if</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500..800&family=Nunito:wght@400..800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff8ec; --surface:#ffffff; --ink:#1d2b53; --muted:#56607d; --line:#eadfc8;
+  --teal:#00878c; --teal-soft:#dff3f2; --orange:#d9600f; --orange-soft:#ffe8d6; --yellow:#ffd23f;
+  --code-bg:#1d2b53; --code-ink:#fff8ec; --good:#1f8a4c; --bad:#c2410c;
+  --sky-day:#9fdcf5; --sky-night:#14204a;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121a33; --surface:#1b2547; --ink:#f3eedf; --muted:#aab3cf; --line:#2c3a66;
+    --teal:#46c7cb; --teal-soft:#16384a; --orange:#ff9a55; --orange-soft:#3d2a20; --yellow:#ffd23f;
+    --code-bg:#0b1230; --code-ink:#f3eedf; --good:#4fd18a; --bad:#ff8a5c;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121a33; --surface:#1b2547; --ink:#f3eedf; --muted:#aab3cf; --line:#2c3a66;
+  --teal:#46c7cb; --teal-soft:#16384a; --orange:#ff9a55; --orange-soft:#3d2a20; --yellow:#ffd23f;
+  --code-bg:#0b1230; --code-ink:#f3eedf; --good:#4fd18a; --bad:#ff8a5c;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;font-size:18px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 56px}
+header{display:flex;align-items:center;gap:20px;margin-bottom:20px}
+header svg{flex:none;width:84px;height:96px}
+h1{font-family:'Baloo 2',system-ui,sans-serif;font-weight:800;font-size:clamp(34px,5vw,52px);line-height:1;margin:0}
+header p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+nav{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 24px}
+nav button{font:inherit;font-weight:800;font-size:17px;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 18px;border-radius:999px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.sim{display:none}
+.sim.on{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.sim.on{grid-template-columns:1fr}}
+.stage{background:var(--surface);border:2px solid var(--line);border-radius:28px;padding:24px}
+h2{font-family:'Baloo 2',system-ui,sans-serif;font-size:30px;font-weight:800;margin:0 0 4px;line-height:1.15}
+.lead{margin:0 0 18px;color:var(--muted)}
+.code{background:var(--code-bg);color:var(--code-ink);border-radius:24px;padding:20px 0;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:16px;line-height:1.75;overflow-x:auto;position:sticky;top:16px}
+.code h3{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#a8b3d1;margin:0 22px 8px;letter-spacing:.02em}
+.ln{white-space:pre;padding:0 22px;border-left:5px solid transparent;transition:background .2s,opacity .2s}
+.ln.run{background:rgba(255,210,63,.18);border-left-color:var(--yellow)}
+.ln.skip{opacity:.38}
+.k{color:#ffd23f}.f{color:#7fe3e0}.c{color:#a8b3d1}.n{color:#ffb27a}
+.why{margin:14px 22px 0;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.08);font-family:'Nunito',sans-serif;font-size:16px;line-height:1.45}
+.why b{color:#ffd23f}
+.btn{font:inherit;font-weight:800;font-size:17px;border:none;background:var(--teal);color:#fff;padding:12px 20px;border-radius:16px;cursor:pointer}
+.btn.alt{background:var(--orange-soft);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+label.ctl{display:block;font-weight:800;margin:16px 0 6px}
+input[type=range]{width:100%;accent-color:var(--teal);height:28px}
+select{font:inherit;font-weight:700;padding:6px 10px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.note{font-size:15px;color:var(--muted);margin:8px 0 0}
+
+/* lunchbox */
+.boxes{display:flex;flex-wrap:wrap;gap:22px;min-height:190px;align-items:flex-end;padding:8px 0 18px}
+.box{display:flex;flex-direction:column;align-items:center;animation:pop .35s ease-out}
+.box .tag{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;background:var(--orange);color:#1d2b53;padding:2px 18px;border-radius:12px 12px 0 0}
+.box .val{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:56px;line-height:1;min-width:150px;text-align:center;padding:28px 18px;background:var(--bg);border:4px solid var(--ink);border-radius:24px;color:var(--teal)}
+.box.bump .val{animation:bump .45s ease-out}
+.empty{color:var(--muted);font-style:italic}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes bump{30%{transform:scale(1.12);background:var(--yellow);color:#1d2b53}100%{transform:none}}
+.guess{background:var(--orange-soft);border-radius:18px;padding:14px 16px;margin:14px 0}
+.guess p{margin:0 0 10px;font-weight:800}
+.guess .row button{font:inherit;font-weight:800;font-size:22px;min-width:76px;padding:8px 14px;border-radius:14px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
+.fb{font-weight:800;margin:10px 0 0}
+.fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
+.play{border-top:2px dashed var(--line);margin-top:18px;padding-top:14px}
+
+/* night light */
+.scene{position:relative;height:250px;border-radius:22px;overflow:hidden;background:var(--sky-day)}
+.scene .sun,.scene .moon{position:absolute;top:28px;width:64px;height:64px;border-radius:50%;transition:opacity .3s}
+.scene .sun{left:36px;background:#ffd23f;box-shadow:0 0 40px #ffd23f}
+.scene .moon{right:40px;background:#f3eedf;box-shadow:inset -14px -6px 0 #c8c2b0}
+.scene .ground{position:absolute;left:0;right:0;bottom:0;height:62px;background:#2f6b4f}
+.lamp{position:absolute;left:50%;bottom:62px;transform:translateX(-50%);width:16px;height:120px;background:#3a3f55;border-radius:8px 8px 0 0}
+.bulb{position:absolute;left:50%;bottom:172px;transform:translateX(-50%);width:54px;height:54px;border-radius:50%;background:#5c6070;border:4px solid #3a3f55;transition:background .2s,box-shadow .2s}
+.bulb.on{background:#ffe066;box-shadow:0 0 30px 14px rgba(255,224,102,.75),0 0 90px 40px rgba(255,224,102,.35)}
+.readout{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.chip{background:var(--teal-soft);border-radius:14px;padding:8px 14px;font-weight:800}
+.chip span{font-family:'JetBrains Mono',monospace;color:var(--teal)}
+
+/* parking */
+.road{position:relative;height:180px;border-radius:22px;background:#59607a;overflow:hidden}
+.road .wall{position:absolute;right:0;top:0;bottom:0;width:26px;background:repeating-linear-gradient(45deg,#ffd23f 0 14px,#1d2b53 14px 28px)}
+.road .stripe{position:absolute;left:0;right:26px;top:86px;height:6px;background:repeating-linear-gradient(90deg,#f3eedf 0 30px,transparent 30px 60px);opacity:.6}
+.car{position:absolute;top:44px;width:150px;height:92px;transition:left .15s}
+.leds{display:flex;gap:18px;margin-top:16px;align-items:center}
+.led{width:46px;height:46px;border-radius:50%;border:4px solid #3a3f55;background:#4b5064;transition:all .15s}
+.led.r.on{background:#ff4d4d;box-shadow:0 0 22px 6px rgba(255,77,77,.7)}
+.led.y.on{background:#ffd23f;box-shadow:0 0 22px 6px rgba(255,210,63,.7)}
+.led.g.on{background:#3ddc84;box-shadow:0 0 22px 6px rgba(61,220,132,.7)}
+.msg{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:28px;margin-left:8px}
+
+/* predict */
+.score{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.scorebox{font-family:'JetBrains Mono',monospace;font-weight:700;background:var(--code-bg);color:var(--code-ink);padding:8px 14px;border-radius:12px}
+.scorebox .n{font-size:20px}
+.q{font-family:'Baloo 2',sans-serif;font-size:26px;font-weight:800;margin:6px 0 14px;line-height:1.2}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answers button{font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:800;padding:20px 12px;border-radius:20px;border:3px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
+.answers button.right{background:var(--good);color:#fff;border-color:var(--good)}
+.answers button.wrong{background:var(--bad);color:#fff;border-color:var(--bad)}
+.stars{font-size:44px;letter-spacing:6px;color:var(--yellow);text-shadow:0 2px 0 var(--ink)}
+.progress{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 16px}
+.progress div{height:100%;background:var(--orange);transition:width .3s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.stories{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.stories button{font:inherit;font-weight:800;font-size:16px;border:2px solid var(--line);background:var(--bg);color:var(--ink);padding:7px 14px;border-radius:12px;cursor:pointer}
+.stories button[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#1d2b53}
+.inputs{display:flex;flex-wrap:wrap;gap:14px 28px;margin:0 0 6px}
+.inputs:empty{display:none}
+.inp{min-width:220px;flex:1}
+.inp .lbl{display:block;font-weight:800;margin-bottom:6px}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.seg button{font:inherit;font-weight:800;border:none;background:var(--surface);color:var(--ink);padding:8px 18px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.area{margin-top:14px}
+.mini{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--muted);margin:0 0 6px}
+.boxes{min-height:150px}
+.shelf{display:flex;flex-wrap:wrap;gap:10px;min-height:64px;padding:12px;border:2px dashed var(--line);border-radius:18px;align-items:flex-end}
+.shelf.stack{flex-direction:column-reverse;align-items:flex-start;min-height:120px}
+.item{display:flex;align-items:center;gap:8px;background:var(--teal-soft);border-radius:14px;padding:6px 12px;font-weight:800;animation:pop .3s ease-out}
+.item .ic{font-size:30px;line-height:1}
+.item.big{font-family:'Baloo 2',sans-serif;font-size:28px;padding:4px 18px}
+.shelf.stack .item{background:var(--orange-soft)}
+.shelf .none{color:var(--muted);font-style:italic;margin:0}
+.ctrl{margin-top:16px}
+.done{color:var(--good);font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<svg viewBox="0 0 460 520" aria-hidden="true"><line x1="230" y1="40" x2="230" y2="100" stroke="#ffd23f" stroke-width="12"/><circle cx="230" cy="36" r="22" fill="#f2711c"/><rect x="70" y="100" width="320" height="230" rx="56" fill="#00979d"/><rect x="112" y="140" width="236" height="150" rx="36" fill="#fff8ec"/><circle cx="185" cy="205" r="24" fill="#1d2b53"/><circle cx="275" cy="205" r="24" fill="#1d2b53"/><circle cx="193" cy="196" r="8" fill="#fff8ec"/><circle cx="283" cy="196" r="8" fill="#fff8ec"/><circle cx="150" cy="248" r="14" fill="#ff9ea8"/><circle cx="310" cy="248" r="14" fill="#ff9ea8"/><path d="M200 250 Q230 276 260 250" stroke="#1d2b53" stroke-width="9" fill="none" stroke-linecap="round"/><rect x="120" y="345" width="220" height="150" rx="36" fill="#00979d"/><circle cx="175" cy="415" r="16" fill="#ffd23f"/><circle cx="230" cy="415" r="16" fill="#f2711c"/><circle cx="285" cy="415" r="16" fill="#fff8ec"/><rect x="30" y="365" width="80" height="30" rx="15" fill="#00979d"/><rect x="350" y="365" width="80" height="30" rx="15" fill="#00979d"/></svg>
+<div>
+<h1>Ardu’s Lab</h1>
+<p>Step through everyday stories in code. The yellow glow shows the line Ardu is running right now; faded lines are skipped.</p>
+</div>
+</header>
+
+<nav role="tablist" aria-label="Simulations">
+<button role="tab" id="t-variables" aria-controls="variables" data-view="variables">Variables</button>
+<button role="tab" id="t-ifs" aria-controls="ifs" data-view="ifs">If decisions</button>
+<button role="tab" id="t-forloops" aria-controls="forloops" data-view="forloops">For loops</button>
+<button role="tab" id="t-nightlight" aria-controls="nightlight" data-view="nightlight">Night light</button>
+<button role="tab" id="t-parking" aria-controls="parking" data-view="parking">Parking sensor</button>
+<button role="tab" id="t-predict" aria-controls="predict" data-view="predict">Predict the robot</button>
+</nav>
+
+<section class="sim" id="variables" role="tabpanel" aria-labelledby="t-variables"></section>
+<section class="sim" id="ifs" role="tabpanel" aria-labelledby="t-ifs"></section>
+<section class="sim" id="forloops" role="tabpanel" aria-labelledby="t-forloops"></section>
+
+<!-- 2. NIGHT LIGHT -->
+<section class="sim" id="nightlight" role="tabpanel" aria-labelledby="t-nightlight">
+<div class="stage">
+<h2>The night light decides by itself</h2>
+<p class="lead">Drag the sky from day to night. Change the threshold and watch which part of the if statement runs.</p>
+<div class="scene" id="sky" aria-hidden="true"><div class="sun" id="sun"></div><div class="moon" id="moon"></div><div class="lamp"></div><div class="bulb" id="bulb"></div><div class="ground"></div></div>
+<div class="readout"><div class="chip">reading = <span id="nl-r">200</span></div><div class="chip">LED is <span id="nl-led">OFF</span></div></div>
+<label class="ctl" for="nl-dark">How dark is it? (the sensor reading)</label>
+<input type="range" id="nl-dark" min="0" max="1023" value="200">
+<p class="note">In our sensor, darker means a bigger number, from 0 (bright sun) to 1023 (pitch black).</p>
+<label class="ctl" for="nl-th">Threshold: the number where “dark” starts</label>
+<input type="range" id="nl-th" min="0" max="1023" value="500">
+<div class="row" style="margin-top:12px"><label for="nl-op" style="font-weight:800">Comparison:</label>
+<select id="nl-op"><option value="&gt;">&gt;  greater than</option><option value="&lt;">&lt;  less than</option></select>
+<span class="note" style="margin:0">Try “less than”. Is that a good night light?</span></div>
+</div>
+<div class="code" aria-label="Program code"><h3>sketch.ino</h3><div id="nl-code"></div><div class="why" id="nl-why"></div></div>
+</section>
+
+<!-- 3. PARKING -->
+<section class="sim" id="parking" role="tabpanel" aria-labelledby="t-parking">
+<div class="stage">
+<h2>Three choices with if, else if, else</h2>
+<p class="lead">Drive the car towards the wall. Ardu checks the questions in order and runs the first one that is true.</p>
+<div class="road" aria-hidden="true"><div class="stripe"></div><div class="wall"></div>
+<svg class="car" id="car" viewBox="0 0 150 92"><rect x="8" y="30" width="134" height="40" rx="14" fill="#f2711c"/><path d="M34 32 L52 8 H100 L120 32 Z" fill="#f2711c"/><path d="M58 14 H80 V32 H46 Z M86 14 H98 L112 32 H86 Z" fill="#bfe9f7"/><circle cx="40" cy="72" r="15" fill="#1d2b53"/><circle cx="110" cy="72" r="15" fill="#1d2b53"/><circle cx="40" cy="72" r="6" fill="#a8b3d1"/><circle cx="110" cy="72" r="6" fill="#a8b3d1"/><rect x="136" y="40" width="10" height="12" rx="3" fill="#ffd23f"/></svg></div>
+<div class="leds"><div class="led r" id="led-r"></div><div class="led y" id="led-y"></div><div class="led g" id="led-g"></div><span class="msg" id="pk-msg" aria-live="polite"></span></div>
+<label class="ctl" for="pk-d">Distance to the wall: <span id="pk-dv">60</span> cm</label>
+<input type="range" id="pk-d" min="2" max="100" value="60">
+<label class="row" style="gap:6px;font-weight:700;margin-top:10px"><input type="checkbox" id="pk-sound"> Beep sound</label>
+</div>
+<div class="code" aria-label="Program code"><h3>sketch.ino</h3><div id="pk-code"></div><div class="why" id="pk-why"></div></div>
+</section>
+
+<!-- 4. PREDICT -->
+<section class="sim" id="predict" role="tabpanel" aria-labelledby="t-predict">
+<div class="stage">
+<h2>Predict the robot</h2>
+<p class="lead">Read the code, then choose what Ardu will do. Ten rounds. Watch out for tricky ones like 30 &gt; 30!</p>
+<div class="score"><span class="scorebox"><span class="k">int</span> score = <span class="n" id="pr-score">0</span>;</span><span class="note" id="pr-round" style="margin:0"></span></div>
+<div class="progress"><div id="pr-bar" style="width:0%"></div></div>
+<div id="pr-body"></div>
+</div>
+<div class="code" aria-label="Program code"><h3>robot.ino</h3><div id="pr-code"></div><div class="why" id="pr-why">Choose an answer to see which line runs.</div></div>
+</section>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const K=s=>`<span class="k">${s}</span>`,F=s=>`<span class="f">${s}</span>`,C=s=>`<span class="c">${esc(s)}</span>`,N=s=>`<span class="n">${esc(s)}</span>`;
+function render(el,lines){el.innerHTML=lines.map(l=>`<div class="ln ${l.cls||''}">${l.h}</div>`).join('')}
+
+const views=['variables','ifs','forloops','nightlight','parking','predict'];
+function show(v){
+  if(v==='lunchbox')v='variables';
+  if(!views.includes(v))v='variables';
+  views.forEach(x=>{$(x).classList.toggle('on',x===v);document.querySelector(`[data-view="${x}"]`).setAttribute('aria-selected',x===v)});
+  if(v!=='parking')stopBeep(); else updParking();
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
+
+/* ---------- STORY ENGINE ---------- */
+function tracer(){const steps=[];const v={};return{v,steps,
+  set(line,name,val,why,guess=true){steps.push({kind:'set',line,name,val,old:v[name],why,guess});v[name]=val},
+  check(line,expr,val,why){steps.push({kind:'check',line,expr,val,why})},
+  act(line,icon,label,why,big){steps.push({kind:'act',line,icon,label,why,big})},
+  skip(lines){steps[steps.length-1].skip=lines}}}
+function lab(id,cfg){
+  const root=$(id);let si=0,inp={},steps=[],pos=-1,waiting=false,timer=null;
+  root.innerHTML=`<div class="stage"><h2>${cfg.title}</h2><p class="lead">${cfg.lead}</p>
+   <div class="stories" role="group" aria-label="Choose an example">${cfg.stories.map((s,i)=>`<button data-i="${i}">${s.name}</button>`).join('')}</div>
+   <div class="inputs"></div>
+   <div class="row ctrl"><button class="btn b-next">Run next line</button><button class="btn alt b-auto">Auto play</button><button class="btn alt b-reset">Start again</button><label class="row" style="gap:6px;font-weight:700"><input type="checkbox" class="b-guess" checked> Guess first</label></div>
+   <div class="guess" hidden></div>
+   <div class="area"><h3 class="mini">Variables (lunchboxes)</h3><div class="boxes" aria-live="polite"></div></div>
+   <div class="area"><h3 class="mini shelf-t"></h3><div class="shelf"></div></div></div>
+   <div class="code" aria-label="Program code"><h3>sketch.ino</h3><div class="lines"></div><div class="why"></div></div>`;
+  const q=s=>root.querySelector(s);
+  function story(){return cfg.stories[si]}
+  function pick(i){si=i;inp={};(story().inputs||[]).forEach(x=>inp[x.id]=x.val);
+    root.querySelectorAll('.stories button').forEach((b,k)=>b.setAttribute('aria-pressed',k===si));
+    drawInputs();build()}
+  function drawInputs(){const box=q('.inputs');box.innerHTML=(story().inputs||[]).map(x=>x.type==='toggle'
+     ?`<div class="inp"><span class="lbl">${x.label}</span><span class="seg" role="group" aria-label="${x.label}"><button data-id="${x.id}" data-v="1" aria-pressed="${inp[x.id]==1}">Yes</button><button data-id="${x.id}" data-v="0" aria-pressed="${inp[x.id]==0}">No</button></span></div>`
+     :`<div class="inp"><label class="lbl" for="${id}-${x.id}">${x.label}${/\?$/.test(x.label)?' ':': '}<span id="${id}-${x.id}-v">${inp[x.id]}</span>${x.unit||''}</label><input type="range" id="${id}-${x.id}" data-id="${x.id}" min="${x.min}" max="${x.max}" step="${x.step||1}" value="${inp[x.id]}"></div>`).join('');
+    box.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{inp[b.dataset.id]=+b.dataset.v;drawInputs();build()});
+    box.querySelectorAll('input[type=range]').forEach(r=>r.oninput=()=>{inp[r.dataset.id]=+r.value;$(`${id}-${r.dataset.id}-v`).textContent=r.value;build()});}
+  function build(){stopAuto();const S=tracer();story().run(S,inp);steps=S.steps;pos=-1;waiting=false;q('.guess').hidden=true;
+    q('.why').innerHTML=story().intro;draw()}
+  function draw(changed){
+    const vars={},order=[],shelf=[],skip=new Set;
+    for(let k=0;k<=pos;k++){const s=steps[k];if(s.kind==='set'){if(!(s.name in vars))order.push(s.name);vars[s.name]=s.val}
+      if(s.kind==='act')shelf.push(s);(s.skip||[]).forEach(l=>skip.add(l))}
+    q('.boxes').innerHTML=order.length?order.map(n=>`<div class="box${n===changed?' bump':''}"><span class="tag">${n}</span><span class="val">${vars[n]}</span></div>`).join(''):'<p class="empty">No boxes yet. Run the first line to make one.</p>';
+    const sh=q('.shelf');sh.className='shelf'+(story().stack?' stack':'');q('.shelf-t').textContent=story().shelf;
+    sh.innerHTML=shelf.length?shelf.map(s=>`<div class="item${s.big?' big':''}">${s.icon?`<span class="ic" aria-hidden="true">${s.icon}</span>`:''}<span>${s.label}</span></div>`).join(''):'<p class="none">Nothing yet.</p>';
+    const cur=pos>=0&&!waiting?steps[pos].line:(waiting?steps[pos+1].line:-1);
+    render(q('.lines'),story().code(inp).map((h,i)=>({h,cls:i===cur?'run':(skip.has(i)?'skip':'')})));
+    q('.b-next').disabled=waiting||pos>=steps.length-1;q('.b-auto').disabled=pos>=steps.length-1;
+  }
+  function advance(){pos++;waiting=false;q('.guess').hidden=true;const s=steps[pos];
+    let w=s.why||'';if(pos===steps.length-1){w+=` <span class="done">Program finished!</span>`+((story().inputs||[]).length?' Change the settings above and run it again.':'');stopAuto()}
+    q('.why').innerHTML=w;draw(s.kind==='set'?s.name:null)}
+  function next(){if(waiting||pos>=steps.length-1)return;const s=steps[pos+1];
+    const ask=q('.b-guess').checked&&!timer&&((s.kind==='set'&&s.guess)||s.kind==='check');
+    if(!ask)return advance();
+    waiting=true;draw();let right,opts,qs;
+    if(s.kind==='check'){right='true';opts=['true','false'];qs=`Is <span style="font-family:'JetBrains Mono',monospace">${esc(s.expr)}</span> true or false?`}
+    else{right=String(s.val);const c=[s.old,s.val+1,s.val-1,s.val*2,s.val+10].filter(x=>x!==undefined&&x!==s.val);
+      opts=[...new Set([s.val,...c.slice(0,2)])].map(String).sort(()=>Math.random()-.5);qs=`After this line, what will <span style="font-family:'JetBrains Mono',monospace">${s.name}</span> hold?`}
+    if(s.kind==='check')right=s.val?'true':'false';
+    const g=q('.guess');g.hidden=false;
+    g.innerHTML=`<p>${qs}</p><div class="row">${opts.map(o=>`<button data-v="${o}">${o}</button>`).join('')}</div><p class="fb" aria-live="polite"></p>`;
+    g.querySelectorAll('button').forEach(b=>b.onclick=()=>{const ok=b.dataset.v===right,fb=g.querySelector('.fb');
+      g.querySelectorAll('button').forEach(x=>x.disabled=true);fb.className='fb '+(ok?'ok':'no');
+      fb.textContent=ok?'Yes! Well predicted.':`Not quite. The answer is ${right}.`;setTimeout(advance,ok?700:1500)});
+    g.querySelector('button').focus();
+  }
+  function stopAuto(){clearInterval(timer);timer=null;q('.b-auto').textContent='Auto play'}
+  q('.b-next').onclick=next;q('.b-reset').onclick=build;
+  q('.b-auto').onclick=()=>{if(timer)return stopAuto();if(waiting)return;q('.b-auto').textContent='Pause';timer=setInterval(()=>{if(pos>=steps.length-1)return stopAuto();advance()},850)};
+  root.querySelectorAll('.stories button').forEach(b=>b.onclick=()=>pick(+b.dataset.i));
+  pick(0);
+}
+const S_=s=>N('"'+s+'"');
+const cm=s=>'   '+C('// '+s);
+
+/* ---------- VARIABLE STORIES ---------- */
+lab('variables',{title:'Every variable is a labelled lunchbox',lead:'Pick a story. Run it one line at a time and guess the number in the box before Ardu opens it.',stories:[
+ {name:'Game score',shelf:'',intro:'A variable has a <b>type</b> (int = whole number), a <b>name</b> and a <b>value</b>.',
+  code:()=>[`${K('int')} score = ${N(0)};`,`${K('int')} lives = ${N(3)};`,`score = score + ${N(10)};`+cm('collected a coin'),`lives = lives - ${N(1)};`+cm('hit a monster'),`score = score * ${N(2)};`+cm('double points!'),`lives = lives + ${N(1)};`+cm('found a heart')],
+  run:S=>{S.set(0,'score',0,'<b>int score = 0;</b> makes a new box called score with 0 inside.',false);S.set(1,'lives',3,'A second box. Each box remembers its own number.',false);
+   S.set(2,'score',10,'Take out what is in score, add 10, put the answer back.');S.set(3,'lives',2,'Ouch! Take lives out, subtract 1, put it back.');S.set(4,'score',20,'<b>*</b> means multiply. Double points!');S.set(5,'lives',3,'Only the lives box changes. score stays the same.')}},
+ {name:'Piggy bank',shelf:'',intro:'Watch the money in the piggy bank go up and down.',
+  code:()=>[`${K('int')} coins = ${N(50)};`+cm('birthday money'),`coins = coins + ${N(20)};`+cm('pocket money'),`coins = coins - ${N(35)};`+cm('bought a comic'),`${K('int')} samosas = ${N(2)};`,`coins = coins - samosas * ${N(5)};`+cm('5 coins each')],
+  run:S=>{S.set(0,'coins',50,'The piggy bank starts with 50 coins.',false);S.set(1,'coins',70,'Pocket money day: 50 + 20.');S.set(2,'coins',35,'Spent 35 on a comic: 70 − 35.');S.set(3,'samosas',2,'A new box: how many samosas you bought.',false);S.set(4,'coins',25,'Ardu multiplies first: 2 × 5 = 10. Then 35 − 10 = 25. You can use one box to change another!')}},
+ {name:'Water bottle',shelf:'',intro:'One box tracks how much water (in ml) is in your bottle today.',
+  code:()=>[`${K('int')} water = ${N(500)};`+cm('a full bottle, in ml'),`water = water - ${N(150)};`+cm('drink at break'),`water = water - ${N(200)};`+cm('drink after PE'),`water = water + ${N(300)};`+cm('refill at the cooler')],
+  run:S=>{S.set(0,'water',500,'Morning: the bottle is full with 500 ml.',false);S.set(1,'water',350,'Break time: 500 − 150.');S.set(2,'water',150,'Thirsty after PE: 350 − 200.');S.set(3,'water',450,'Refill: 150 + 300. The same box keeps changing all day.')}},
+ {name:'Swap the lunchboxes',shelf:'',intro:'Puzzle: how do you swap what is inside two boxes without losing anything?',
+  code:()=>[`${K('int')} boxA = ${N(3)};`+cm('3 grapes'),`${K('int')} boxB = ${N(8)};`+cm('8 grapes'),`${K('int')} temp = boxA;`+cm('copy A into a spare box'),`boxA = boxB;`,`boxB = temp;`],
+  run:S=>{S.set(0,'boxA',3,'Box A has 3 grapes.',false);S.set(1,'boxB',8,'Box B has 8 grapes.',false);S.set(2,'temp',3,'A spare box called temp keeps a copy of A’s number.');S.set(3,'boxA',8,'Box A now holds 8. Without temp, the 3 would be lost forever!');S.set(4,'boxB',3,'Swapped! The spare box (temp) was the trick.')}},
+]});
+
+/* ---------- IF STORIES ---------- */
+lab('ifs',{title:'if lets Ardu make decisions',lead:'Set the situation, then run the program. Before each if, guess: is the question true or false?',stories:[
+ {name:'Umbrella or sunglasses',shelf:'In Ardu’s school bag',inputs:[{id:'rain',label:'Is it raining?',type:'toggle',val:1}],intro:'Choose the weather, then run the program.',
+  code:i=>[`${K('int')} raining = ${N(i.rain)};`+cm('1 = yes, 0 = no'),`${K('if')} (raining == ${N(1)}) {`,`  ${F('pack')}(umbrella);`,`} ${K('else')} {`,`  ${F('pack')}(sunglasses);`,`}`,`${F('pack')}(lunchbox);`+cm('outside the if: always runs')],
+  run:(S,i)=>{S.set(0,'raining',i.rain,'Ardu looks outside and stores the answer in a box.',false);const c=i.rain==1;
+   S.check(1,`${i.rain} == 1`,c,c?'True! Ardu goes inside the if block.':'False! Ardu skips to the else block.');S.skip(c?[3,4]:[2]);
+   if(c)S.act(2,'☂️','umbrella','Umbrella packed.');else S.act(4,'🕶️','sunglasses','Sunglasses packed.');
+   S.act(6,'🍱','lunchbox','This line is outside the if, so it runs whatever the weather.')}},
+ {name:'Canteen samosa',shelf:'What happened at the canteen',inputs:[{id:'m',label:'Money in your pocket',type:'range',min:0,max:50,step:5,val:30,unit:' coins'}],intro:'A samosa costs 20 coins. Set your money, then run it.',
+  code:i=>[`${K('int')} money = ${N(i.m)};`,`${K('int')} price = ${N(20)};`+cm('one samosa'),`${K('if')} (money &gt;= price) {`,`  ${F('buy')}(samosa);`,`  money = money - price;`,`} ${K('else')} {`,`  ${F('say')}(${S_('Not enough money!')});`,`}`],
+  run:(S,i)=>{S.set(0,'money',i.m,'How much money do you have?',false);S.set(1,'price',20,'The samosa price goes in its own box.',false);const c=i.m>=20;
+   S.check(2,`${i.m} >= 20`,c,c?'True: you have enough (or exactly enough!).':'False: not enough coins.');S.skip(c?[5,6]:[3,4]);
+   if(c){S.act(3,'🥟','samosa','Yum!');S.set(4,'money',i.m-20,'Inside the if, a box can change too: pay 20 coins.')}else S.act(6,'💬','Not enough money!','Ardu runs the else block.')}},
+ {name:'What to wear',shelf:'Ardu packs',inputs:[{id:'t',label:'Temperature today',type:'range',min:10,max:45,val:30,unit:' °C'}],intro:'Three choices! Ardu checks the questions in order and stops at the first true one.',
+  code:i=>[`${K('int')} temp = ${N(i.t)};`+cm('°C'),`${K('if')} (temp &gt; ${N(35)}) {`,`  ${F('pack')}(cap);`,`} ${K('else if')} (temp &gt; ${N(25)}) {`,`  ${F('pack')}(waterBottle);`,`} ${K('else')} {`,`  ${F('pack')}(jacket);`,`}`],
+  run:(S,i)=>{const t=i.t;S.set(0,'temp',t,'Ardu reads the temperature.',false);
+   if(t>35){S.check(1,`${t} > 35`,true,'True! Very hot. Ardu runs this block and ignores the rest.');S.skip([3,4,5,6]);S.act(2,'🧢','cap','Cap packed.');return}
+   S.check(1,`${t} > 35`,false,'False, so Ardu moves to the next question.');S.skip([2]);
+   if(t>25){S.check(3,`${t} > 25`,true,'True! Warm day.');S.skip([5,6]);S.act(4,'🥤','water bottle','Water bottle packed.');return}
+   S.check(3,`${t} > 25`,false,'Also false. Nothing true yet, so the else block runs.');S.skip([4]);S.act(6,'🧥','jacket','Jacket packed: it is cool today.')}},
+ {name:'Two ifs: pack the bag',shelf:'In Ardu’s school bag',inputs:[{id:'pe',label:'PE today?',type:'toggle',val:1},{id:'lib',label:'Library today?',type:'toggle',val:0}],intro:'Two separate ifs (no else): Ardu asks BOTH questions. Both, one or neither can be true.',
+  code:i=>[`${K('int')} peDay = ${N(i.pe)};`,`${K('int')} libraryDay = ${N(i.lib)};`,`${K('if')} (peDay == ${N(1)}) {`,`  ${F('pack')}(sportsShoes);`,`}`,`${K('if')} (libraryDay == ${N(1)}) {`,`  ${F('pack')}(libraryBook);`,`}`],
+  run:(S,i)=>{S.set(0,'peDay',i.pe,'Is it PE today?',false);S.set(1,'libraryDay',i.lib,'Is it library day?',false);
+   S.check(2,`${i.pe} == 1`,i.pe==1,i.pe==1?'True: pack the sports shoes.':'False: skip the shoes.');if(i.pe==1)S.act(3,'👟','sports shoes','Shoes packed.');else S.skip([3]);
+   S.check(5,`${i.lib} == 1`,i.lib==1,i.lib==1?'True: pack the library book. Both ifs can run!':'False: no library book.');if(i.lib==1)S.act(6,'📚','library book','Book packed.');else S.skip([6])}},
+]});
+
+/* ---------- FOR STORIES ---------- */
+lab('forloops',{title:'for makes Ardu repeat',lead:'Watch the counter box i change each time round. Before each check, guess: will the loop run again? Try Auto play too.',stories:[
+ {name:'Jumping jacks',shelf:'Ardu’s jumps',inputs:[{id:'n',label:'How many jumping jacks?',type:'range',min:1,max:8,val:5}],intro:'The coach says how many jumping jacks. Ardu counts with a box called i.',
+  code:i=>[`${K('for')} (${K('int')} i = ${N(0)}; i &lt; ${N(i.n)}; i++) {`,`  ${F('jump')}();`,`}`,`${F('say')}(${S_('Done!')});`],
+  run:(S,i)=>{const n=i.n;S.set(0,'i',0,'<b>int i = 0</b>: the counter box starts at 0.',false);
+   for(let k=0;;k++){const c=k<n;S.check(0,`${k} < ${n}`,c,c?`${k} < ${n} is true, so the body runs.`:`${k} < ${n} is false. The loop stops.`);if(!c)break;
+    S.act(1,'⭐',`jump ${k+1}`,`Jump number ${k+1}!`);S.set(0,'i',k+1,'<b>i++</b> adds 1 to the counter.',false)}
+   S.act(3,'🎉','Done!','After the loop ends, the program carries on with the next line.')}},
+ {name:'Build a tower',shelf:'The tower',stack:true,inputs:[{id:'n',label:'How many blocks?',type:'range',min:1,max:7,val:4}],intro:'A loop and a variable working together: the tower’s height grows each time round.',
+  code:i=>[`${K('int')} height = ${N(0)};`,`${K('for')} (${K('int')} i = ${N(0)}; i &lt; ${N(i.n)}; i++) {`,`  ${F('addBlock')}();`,`  height = height + ${N(1)};`,`}`],
+  run:(S,i)=>{const n=i.n;S.set(0,'height',0,'The tower starts with height 0.',false);S.set(1,'i',0,'The counter i starts at 0.',false);
+   for(let k=0;;k++){const c=k<n;S.check(1,`${k} < ${n}`,c,c?'True: add another block.':'False: the tower is finished!');if(!c)break;
+    S.act(2,'🧱',`block ${k+1}`,'A block goes on top.');S.set(3,'height',k+1,'height goes up by 1.');S.set(1,'i',k+1,'i++ adds 1 to the counter.',false)}}},
+ {name:'Times table',shelf:'Ardu says',inputs:[{id:'n',label:'Which times table?',type:'range',min:2,max:10,val:3}],intro:'Ardu uses the loop counter i to work out a times table.',
+  code:i=>[`${K('int')} n = ${N(i.n)};`,`${K('for')} (${K('int')} i = ${N(1)}; i &lt;= ${N(5)}; i++) {`,`  ${K('int')} answer = n * i;`,`  ${F('say')}(answer);`,`}`],
+  run:(S,i)=>{const n=i.n;S.set(0,'n',n,'Which times table?',false);S.set(1,'i',1,'This time i starts at 1.',false);
+   for(let k=1;;k++){const c=k<=5;S.check(1,`${k} <= 5`,c,c?'True: work out the next answer.':'False: 6 is not ≤ 5. All done!');if(!c)break;
+    S.set(2,'answer',n*k,`${n} × ${k} = ${n*k}.`);S.act(3,'',`${n} × ${k} = ${n*k}`,'Ardu says the answer.');S.set(1,'i',k+1,'i++',false)}}},
+ {name:'Rocket countdown',shelf:'Ardu says',intro:'A loop can count DOWN too: i-- takes 1 away each time.',
+  code:()=>[`${K('for')} (${K('int')} i = ${N(5)}; i &gt; ${N(0)}; i--) {`,`  ${F('say')}(i);`,`}`,`${F('launch')}();`],
+  run:S=>{S.set(0,'i',5,'The counter starts at 5.',false);
+   for(let k=5;;k--){const c=k>0;S.check(0,`${k} > 0`,c,c?'True: keep counting.':'False: 0 is not greater than 0. Stop counting!');if(!c)break;
+    S.act(1,'',String(k),`Ardu says ${k}…`,true);S.set(0,'i',k-1,'<b>i--</b> takes 1 away.')}
+   S.act(3,'🚀','Blast off!','After the loop: launch!')}},
+]});
+
+/* ---------- 2. NIGHT LIGHT ---------- */
+function mix(a,b,t){const p=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16));const A=p(a),B=p(b);return `rgb(${A.map((x,i)=>Math.round(x+(B[i]-x)*t)).join(',')})`}
+function updNight(){
+  const r=+$('nl-dark').value,t=+$('nl-th').value,op=$('nl-op').value;
+  const cond=op==='>'?r>t:r<t;
+  $('sky').style.background=mix('#9fdcf5','#14204a',r/1023);
+  $('sun').style.opacity=1-r/700;$('moon').style.opacity=Math.max(0,(r-400)/500);
+  $('bulb').classList.toggle('on',cond);
+  $('nl-r').textContent=r;$('nl-led').textContent=cond?'ON':'OFF';
+  render($('nl-code'),[
+    {h:`${K('const int')} threshold = ${N(t)};`},
+    {h:''},
+    {h:`${K('void')} ${F('loop')}() {`},
+    {h:`  ${K('int')} reading = ${F('analogRead')}(${N('A0')});`,cls:'run'},
+    {h:`  ${C('// reading is now '+r)}`},
+    {h:`  ${K('if')} (reading ${esc(op)} threshold) {`,cls:'run'},
+    {h:`    ${F('digitalWrite')}(${N(9)}, ${N('HIGH')});`,cls:cond?'run':'skip'},
+    {h:`  } ${K('else')} {`},
+    {h:`    ${F('digitalWrite')}(${N(9)}, ${N('LOW')});`,cls:cond?'skip':'run'},
+    {h:'  }'},{h:'}'}]);
+  $('nl-why').innerHTML=`Ardu asks: is <b>${r} ${esc(op)} ${t}</b>? That is <b>${cond?'true':'false'}</b>, so the ${cond?'<b>if</b> block runs and the light turns ON':'<b>else</b> block runs and the light stays OFF'}.`;
+}
+['nl-dark','nl-th','nl-op'].forEach(id=>$(id).addEventListener('input',updNight));
+
+/* ---------- 3. PARKING ---------- */
+let audio=null,beepTimer=null,beepEvery=0;
+function beep(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+.08)}catch(e){}}
+function stopBeep(){clearInterval(beepTimer);beepTimer=null;beepEvery=0}
+function setBeep(ms){if(!$('pk-sound').checked||!$('parking').classList.contains('on'))ms=0;if(ms===beepEvery)return;stopBeep();beepEvery=ms;if(ms){beep();beepTimer=setInterval(beep,ms)}}
+function updParking(){
+  const d=+$('pk-d').value;$('pk-dv').textContent=d;
+  const road=document.querySelector('.road');const w=road.clientWidth||600;
+  const maxLeft=w-26-150;$('car').style.left=Math.max(0,maxLeft*(1-(d-2)/98))+'px';
+  const b=d<10?0:d<30?1:2;
+  ['led-r','led-y','led-g'].forEach((id,i)=>$(id).classList.toggle('on',i===b));
+  $('pk-msg').textContent=['STOP!','Slow down…','All clear'][b];
+  $('pk-msg').style.color=['var(--bad)','var(--orange)','var(--good)'][b];
+  const L=(h,c)=>({h,cls:c});
+  render($('pk-code'),[
+    L(`${K('void')} ${F('loop')}() {`),
+    L(`  ${K('int')} distance = ${F('readDistance')}();`,'run'),
+    L(`  ${C('// distance is now '+d+' cm')}`),
+    L(`  ${K('if')} (distance &lt; ${N(10)}) {`,'run'),
+    L(`    ${F('digitalWrite')}(RED, ${N('HIGH')});  ${C('// STOP!')}`,b===0?'run':'skip'),
+    L(`  } ${K('else if')} (distance &lt; ${N(30)}) {`,b>=1?'run':'skip'),
+    L(`    ${F('digitalWrite')}(YELLOW, ${N('HIGH')});`,b===1?'run':'skip'),
+    L(`  } ${K('else')} {`,b===2?'run':'skip'),
+    L(`    ${F('digitalWrite')}(GREEN, ${N('HIGH')});`,b===2?'run':'skip'),
+    L('  }'),L('}')]);
+  const q1=`is ${d} &lt; 10? <b>${d<10?'true':'false'}</b>`;
+  const q2=`is ${d} &lt; 30? <b>${d<30?'true':'false'}</b>`;
+  $('pk-why').innerHTML=b===0?`First question: ${q1}. Ardu runs that block and skips the rest.`:b===1?`First: ${q1}, so skip. Next: ${q2}. Yellow light!`:`First: ${q1}. Next: ${q2}. Nothing was true, so the <b>else</b> block runs.`;
+  setBeep([150,500,0][b]);
+}
+$('pk-d').addEventListener('input',updParking);
+$('pk-sound').addEventListener('change',()=>{stopBeep();updParking()});
+window.addEventListener('resize',updParking);
+
+/* ---------- 4. PREDICT ---------- */
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const near=(th,a,b)=>Math.random()<.3?th:rnd(a,b);
+const T=[
+ ()=>{const v=near(30,20,40);return{vars:[['temp',v]],l:'temp',lv:v,op:'>',r:30,yes:'Fan ON',no:'Fan OFF',yc:`${F('digitalWrite')}(FAN, ${N('HIGH')});`,nc:`${F('digitalWrite')}(FAN, ${N('LOW')});`,q:'It is a hot day. What does Ardu do with the fan?'}},
+ ()=>{const p=Math.random()<.5;return{vars:[['pressed',p?'HIGH':'LOW']],l:'pressed',lv:p?'HIGH':'LOW',op:'==',r:'HIGH',yes:'Buzzer beeps',no:'Buzzer quiet',yc:`${F('tone')}(BUZZER, ${N(1000)});`,nc:`${F('noTone')}(BUZZER);`,q:'Someone may be at the door. What does the buzzer do?',test:()=>p}},
+ ()=>{const v=near(10,2,20);return{vars:[['coins',v]],l:'coins',lv:v,op:'>=',r:10,yes:'Buy the robot',no:'Keep saving',yc:`${F('buyRobot')}();`,nc:`${F('keepSaving')}();`,q:'The robot costs 10 coins. What happens?'}},
+ ()=>{const v=near(20,4,60);return{vars:[['distance',v]],l:'distance',lv:v,op:'<',r:20,yes:'Beep!',no:'Stay quiet',yc:`${F('tone')}(BUZZER, ${N(800)});`,nc:`${F('noTone')}(BUZZER);`,q:'A wall is ahead. Does the parking sensor beep?'}},
+ ()=>{const v=near(600,100,1000);return{vars:[['light',v]],l:'light',lv:v,op:'>',r:600,yes:'Night light ON',no:'Night light OFF',yc:`${F('digitalWrite')}(LED, ${N('HIGH')});`,nc:`${F('digitalWrite')}(LED, ${N('LOW')});`,q:'Remember: in our sensor, bigger means darker.'}},
+ ()=>{const v=rnd(0,3);return{vars:[['lives',v]],l:'lives',lv:v,op:'!=',r:0,yes:'Keep playing',no:'Game over',yc:`${F('keepPlaying')}();`,nc:`${F('gameOver')}();`,q:'A video game checks your lives. What happens?'}},
+ ()=>{const a=rnd(2,9),f=Math.random()<.35?a:rnd(2,9);return{vars:[['apples',a],['friends',f]],l:'apples',lv:a,op:'>=',r:'friends',rv:f,yes:'Everyone gets one',no:'Not enough apples',yc:`${F('shareApples')}();`,nc:`${F('buyMore')}();`,q:'Can every friend have an apple?'}},
+];
+let pr={round:0,score:0,cur:null,order:[]};
+function test(c){const L=c.lv,R=c.rv!==undefined?c.rv:c.r;if(c.test)return c.test();return{'>':L>R,'<':L<R,'>=':L>=R,'==':L===R,'!=':L!==R}[c.op]}
+function prCode(c,state){
+  const rhs=typeof c.r==='number'?N(c.r):(c.r==='HIGH'?N('HIGH'):c.r);
+  const lines=c.vars.map(([n,v])=>({h:`${K('int')} ${n} = ${N(v)};`,cls:state?'run':''}));
+  const res=state?test(c):null;
+  lines.push({h:''},{h:`${K('if')} (${c.l} ${esc(c.op)} ${rhs}) {`,cls:state?'run':''},{h:`  ${c.yc}`,cls:state?(res?'run':'skip'):''},{h:`} ${K('else')} {`},{h:`  ${c.nc}`,cls:state?(res?'skip':'run'):''},{h:'}'});
+  render($('pr-code'),lines);
+}
+function prNew(){
+  if(pr.round>=10)return prEnd();
+  if(!pr.order.length)pr.order=[...T.keys()].sort(()=>Math.random()-.5);
+  const c=T[pr.order.pop()]();pr.cur=c;
+  $('pr-round').textContent=`Round ${pr.round+1} of 10`;$('pr-bar').style.width=pr.round*10+'%';
+  const opts=Math.random()<.5?[c.yes,c.no]:[c.no,c.yes];
+  $('pr-body').innerHTML=`<p class="q">${c.q}</p><div class="answers">${opts.map(o=>`<button data-a="${o}">${o}</button>`).join('')}</div><p class="fb" id="pr-fb" aria-live="polite"></p>`;
+  $('pr-why').innerHTML='Choose an answer to see which line runs.';
+  prCode(c,false);
+  $('pr-body').querySelectorAll('.answers button').forEach(b=>b.onclick=()=>prAnswer(b));
+}
+function prAnswer(b){
+  const c=pr.cur,res=test(c),right=res?c.yes:c.no,ok=b.dataset.a===right;
+  $('pr-body').querySelectorAll('.answers button').forEach(x=>{x.disabled=true;if(x.dataset.a===right)x.classList.add('right');else if(x===b)x.classList.add('wrong')});
+  if(ok){pr.score++;$('pr-score').textContent=pr.score}
+  pr.round++;$('pr-bar').style.width=pr.round*10+'%';
+  const R=c.rv!==undefined?`${c.r} (${c.rv})`:c.r;
+  const fb=$('pr-fb');fb.className='fb '+(ok?'ok':'no');
+  fb.innerHTML=(ok?'Correct! score = score + 1;':'Not this time.')+` <button class="btn" id="pr-next" style="margin-left:10px">${pr.round>=10?'See my score':'Next round'}</button>`;
+  $('pr-next').onclick=prNew;$('pr-next').focus();
+  $('pr-why').innerHTML=`Is <b>${c.lv} ${esc(c.op)} ${R}</b>? That is <b>${res?'true':'false'}</b>, so the <b>${res?'if':'else'}</b> block runs: ${right}.`;
+  prCode(c,true);
+}
+function prEnd(){
+  const s=pr.score,stars=s>=9?3:s>=6?2:s>=3?1:0;
+  $('pr-round').textContent='Finished!';$('pr-bar').style.width='100%';
+  $('pr-body').innerHTML=`<p class="q">You scored ${s} out of 10</p><p class="stars" aria-label="${stars} stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</p><p>${s>=9?'You think like Ardu!':s>=6?'Great thinking. Watch out for &gt;= and ==.':'Read each question aloud: “Is 30 greater than 30?” Then try again!'}</p><button class="btn" id="pr-again">Play again</button>`;
+  $('pr-why').innerHTML='Every round you played, Ardu ran <b>score = score + 1;</b> when you were right. Your score is a variable too!';
+  $('pr-again').onclick=()=>{pr={round:0,score:0,cur:null,order:[]};$('pr-score').textContent=0;prNew()};
+}
+
+
+updNight();prNew();
+show(location.hash.slice(1));updParking();
+</script>
+</body>
+</html>

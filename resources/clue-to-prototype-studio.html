@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>From Clue to Prototype: Design Process Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6FA; --sheet:#FFFFFF; --ink:#1E2033; --muted:#585C72; --line:#D8DBE7; --dot:#C9CDDC;
+  --A:#8A6BDF; --Ad:#5A3DB5; --At:#EFEAFD;
+  --B:#EE7DB5; --Bd:#AE2D6B; --Bt:#FDEAF3;
+  --C:#3DC3DD; --Cd:#0D7385; --Ct:#E3F7FB;
+  --D:#F1B23C; --Dd:#8F5D00; --Dt:#FDF3DF;
+  --E:#88CC58; --Ed:#3B7419; --Et:#ECF7E3;
+  --bad:#C0392B; --good:#2E7D32;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#16171F; --sheet:#1F2130; --ink:#ECEDF5; --muted:#A6AAC0; --line:#353849; --dot:#2A2C3A;
+    --Ad:#B9A5FF; --At:#2A2342; --Bd:#FF9CCB; --Bt:#3A2130; --Cd:#7FE0F0; --Ct:#16323A;
+    --Dd:#FFCB6B; --Dt:#3A2E15; --Ed:#B4EA8C; --Et:#213220; --bad:#FF8A7A; --good:#8BD48F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#16171F; --sheet:#1F2130; --ink:#ECEDF5; --muted:#A6AAC0; --line:#353849; --dot:#2A2C3A;
+  --Ad:#B9A5FF; --At:#2A2342; --Bd:#FF9CCB; --Bt:#3A2130; --Cd:#7FE0F0; --Ct:#16323A;
+  --Dd:#FFCB6B; --Dt:#3A2E15; --Ed:#B4EA8C; --Et:#213220; --bad:#FF8A7A; --good:#8BD48F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:22px 22px}
+h1,h2,h3,h4{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;line-height:1.15;margin:0}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--Ad);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* header */
+.top{padding:36px 0 8px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.top h1{font-size:clamp(2.1rem,5vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+.top p{max-width:60ch;color:var(--muted);margin:.6em 0 0}
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center}
+.controls label{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+select,input[type=text],textarea{background:var(--sheet);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:70px;resize:vertical}
+.btn{border:1.5px solid var(--ink);background:var(--sheet);border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:700}
+.btn:hover{background:var(--ink);color:var(--sheet)}
+.btn.small{padding:4px 12px;font-size:.88rem}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+@media (max-width:820px){.top{grid-template-columns:1fr}.controls{justify-content:flex-start}}
+
+/* wave nav */
+.wave{margin:18px 0 6px}
+.wave svg{width:100%;height:auto;display:block;overflow:visible}
+.wave .node{cursor:pointer}
+.wave .node circle.bg{transition:r .25s ease}
+.wave .node text.letter{font:800 34px "Bricolage Grotesque",sans-serif;fill:#1E2033;pointer-events:none}
+.wave .node text.name{font:700 19px "Bricolage Grotesque",sans-serif;fill:var(--ink)}
+.wave .node text.prog{font:400 15px "Atkinson Hyperlegible",sans-serif;fill:var(--muted)}
+.wave .node:focus{outline:none}
+.wave .node:focus-visible circle.bg{stroke:var(--ink);stroke-width:4}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* user strip */
+.userstrip{display:flex;gap:14px;align-items:center;background:var(--sheet);border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;margin:8px 0 20px}
+.userstrip .tag{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.25rem}
+.userstrip p{margin:0;color:var(--muted)}
+
+/* stage */
+.stage{display:none;padding-bottom:40px}
+.stage.on{display:block}
+.stagehead{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin:10px 0 18px}
+.stagehead .big{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font:800 2.6rem "Bricolage Grotesque",sans-serif;color:#1E2033}
+.stagehead h2{font-size:clamp(1.7rem,3.5vw,2.4rem)}
+.stagehead p{margin:.3em 0 0;color:var(--muted);max-width:70ch}
+
+details.act{background:var(--sheet);border:1.5px solid var(--line);border-left:10px solid var(--sc);border-radius:6px 14px 14px 6px;margin:0 0 14px}
+details.act>summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+details.act>summary::-webkit-details-marker{display:none}
+.code{font:800 1.3rem "Bricolage Grotesque",sans-serif;color:var(--scd);min-width:2.2em}
+.act h3{font-size:1.25rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.chip{font-size:.8rem;border-radius:999px;padding:2px 10px;background:var(--sct);color:var(--scd);font-weight:700}
+.chip.plain{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400}
+.donebox{display:flex;align-items:center;gap:6px;font-size:.88rem;color:var(--muted)}
+.donebox input{width:20px;height:20px;accent-color:var(--scd)}
+.actbody{padding:0 18px 20px 18px;border-top:1px dashed var(--line)}
+.actbody h4{font-size:1.02rem;margin:18px 0 8px;color:var(--scd)}
+.steps{margin:10px 0 0;padding-left:1.3em}
+.steps li{margin:4px 0;max-width:75ch}
+.teacher{display:none;background:var(--sct);border-radius:10px;padding:10px 14px;margin:14px 0 0;font-size:.94rem}
+.teacher strong{color:var(--scd)}
+body.tmode .teacher{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.field label{display:block;font-size:.88rem;font-weight:700;margin:0 0 4px}
+.field small{color:var(--muted);font-weight:400}
+.hint{color:var(--muted);font-size:.92rem;margin:6px 0}
+.note{border-left:4px solid var(--scd);padding:4px 12px;margin:12px 0;font-size:.95rem}
+
+/* stage colour scopes */
+[data-stage="A"]{--sc:var(--A);--scd:var(--Ad);--sct:var(--At)}
+[data-stage="B"]{--sc:var(--B);--scd:var(--Bd);--sct:var(--Bt)}
+[data-stage="C"]{--sc:var(--C);--scd:var(--Cd);--sct:var(--Ct)}
+[data-stage="D"]{--sc:var(--D);--scd:var(--Dd);--sct:var(--Dt)}
+[data-stage="E"]{--sc:var(--E);--scd:var(--Ed);--sct:var(--Et)}
+
+/* case file */
+.casefile{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:12px}
+@media (max-width:760px){.casefile{grid-template-columns:1fr}}
+.casefile ul{margin:6px 0;padding-left:1.2em}
+.evidence{background:var(--sct);border-radius:10px;padding:10px 14px}
+.evidence p{margin:6px 0}
+
+/* sorter */
+.pool,.bucket{border:1.5px dashed var(--line);border-radius:10px;padding:8px;min-height:52px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.buckets{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+@media (max-width:900px){.buckets{grid-template-columns:1fr 1fr}}
+.bucket{flex-direction:column;flex-wrap:nowrap;cursor:pointer;background:var(--sheet)}
+.bucket b{font-family:"Bricolage Grotesque",sans-serif;font-size:.95rem}
+.bucket.armed{border-color:var(--scd);border-style:solid;background:var(--sct)}
+.clue{border:1.5px solid var(--line);background:var(--sheet);border-radius:8px;padding:4px 9px;font-size:.86rem;cursor:pointer;text-align:left}
+.clue.ev{border-color:var(--scd)}
+.clue.sel{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+
+/* persona */
+.persona{border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--sheet)}
+.persona .ph{background:var(--sct);padding:14px 16px;display:flex;gap:14px;align-items:center}
+.persona .av{width:58px;height:58px;border-radius:50%;background:var(--sc);display:grid;place-items:center;font:800 1.5rem "Bricolage Grotesque",sans-serif;color:#1E2033}
+.persona .pb{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.persona .pb div{padding:10px 14px;border-top:1px solid var(--line);font-size:.92rem;white-space:pre-wrap}
+.persona .pb div:nth-child(odd){border-right:1px solid var(--line)}
+.persona .pb b{display:block;font-family:"Bricolage Grotesque",sans-serif;color:var(--scd)}
+.persona blockquote{margin:0;padding:12px 16px;border-top:1px solid var(--line);font-style:italic}
+@media (max-width:600px){.persona .pb{grid-template-columns:1fr}.persona .pb div:nth-child(odd){border-right:0}}
+
+/* tables */
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{border:1px solid var(--line);padding:6px;vertical-align:top;text-align:left;font-size:.92rem}
+th{background:var(--sct);font-family:"Bricolage Grotesque",sans-serif}
+td input,td select,td textarea{padding:5px 7px;border-radius:6px}
+td textarea{min-height:48px}
+.flag{color:var(--bad);font-size:.82rem;display:block;margin-top:3px}
+.ok{color:var(--good)}
+.x{border:0;background:none;cursor:pointer;color:var(--muted);font-size:1.1rem}
+
+/* storyboard */
+.sb{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:760px){.sb{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.sb{grid-template-columns:1fr}}
+.frame{border:1.5px solid var(--ink);border-radius:8px;padding:8px;background:var(--sheet)}
+.frame .sk{height:82px;border:1px dashed var(--line);border-radius:6px;display:grid;place-items:center;color:var(--muted);font-size:.8rem;margin-bottom:6px;text-align:center;padding:4px}
+.frame label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:4px}
+.frame input[type=range]{width:100%;accent-color:var(--scd)}
+.emo svg{width:100%;height:auto;display:block}
+
+/* crazy 8s */
+.c8{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:700px){.c8{grid-template-columns:1fr 1fr}}
+.c8 textarea{min-height:90px}
+.timer{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--ink);border-radius:999px;padding:4px 6px 4px 16px;margin:6px 0}
+.timer output{font:800 1.4rem "Bricolage Grotesque",sans-serif;min-width:3.2em;font-variant-numeric:tabular-nums}
+.timer.over output{color:var(--bad)}
+
+/* games */
+.order{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.ocard{border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--sheet);cursor:pointer;max-width:260px;text-align:left;font-size:.9rem}
+.ocard[disabled]{opacity:.35;cursor:default}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media (max-width:760px){.slots{grid-template-columns:1fr}}
+.slot{border:1.5px dashed var(--line);border-radius:10px;min-height:70px;padding:8px;font-size:.88rem}
+.slot b{display:block;font-family:"Bricolage Grotesque",sans-serif}
+.slot.right{border-color:var(--good);border-style:solid}
+.slot.wrong{border-color:var(--bad);border-style:solid}
+.rs td:first-child{min-width:280px}
+.mark{font-weight:700}
+.card-draw{border:2px solid var(--ink);border-radius:12px;padding:14px 16px;margin:10px 0;font-family:"Bricolage Grotesque",sans-serif;font-size:1.2rem;min-height:3em;background:var(--sct)}
+.checklist label{display:flex;gap:10px;align-items:flex-start;margin:6px 0}
+.checklist input{width:20px;height:20px;margin-top:3px;accent-color:var(--scd);flex:none}
+.preview{background:var(--sct);border-radius:10px;padding:12px 16px;font-size:1.05rem;margin-top:10px}
+.preview .lead{font-family:"Bricolage Grotesque",sans-serif;font-weight:700}
+.winner{background:var(--sct);font-weight:700}
+
+/* teacher overview */
+.overview{display:none;background:var(--sheet);border:2px solid var(--ink);border-radius:14px;padding:18px 20px;margin:0 0 20px}
+body.tmode .overview{display:block}
+.overview h2{font-size:1.4rem;margin-bottom:8px}
+
+/* journal */
+dialog{border:2px solid var(--ink);border-radius:16px;max-width:860px;width:calc(100% - 24px);padding:0;background:var(--sheet);color:var(--ink)}
+dialog::backdrop{background:rgba(20,20,35,.55)}
+.jhead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--sheet)}
+.jbody{padding:6px 20px 24px}
+.jbody h3{margin:18px 0 6px;font-size:1.15rem}
+.jbody p,.jbody li{white-space:pre-wrap}
+footer{color:var(--muted);font-size:.85rem;padding:20px 0 40px}
+
+@media print{
+  body{background:#fff}
+  .wave,.controls,.btn,.timer,dialog{display:none!important}
+  .stage{display:block!important;break-before:page}
+  details.act{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <h1>From clue to prototype</h1>
+    <p>Pick a mystery user. Follow the evidence through all five stages of the design process and finish with a virtual prototype you can present and defend. Don't design for a user you imagined. Design for a user you understood.</p>
+  </div>
+  <div class="controls">
+    <label>Team name<input type="text" data-f="team" placeholder="e.g. Team Falcon"></label>
+    <label>Our mystery user<select id="userSel"></select></label>
+    <button class="btn" id="tBtn" aria-pressed="false">Teacher notes</button>
+    <button class="btn" id="jBtn">Open team journal</button>
+  </div>
+</header>
+
+<nav class="wave" aria-label="Design process stages">
+<svg viewBox="0 0 1000 230" role="tablist">
+  <path d="M40 150 C 110 150, 140 70, 220 70 S 330 150, 410 150 S 520 70, 600 70 S 710 150, 790 150 S 900 70, 980 70" fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round"/>
+  <g id="nodes"></g>
+</svg>
+</nav>
+
+<section class="overview" aria-label="Teacher overview">
+  <h2>Teacher overview: lesson map</h2>
+  <p class="hint">Groups of 3–4, one mystery user per group. Eight cards means up to eight groups; repeat cards for larger classes and let same-user groups compare personas in E2. Every activity below is tagged with its syllabus statement and command term. Student work saves in each device's browser, so ask one scribe per team to keep the journal on a single device, then print or screenshot it as evidence.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Lesson (≈60 min)</th><th>Activities</th><th>Statements</th><th>Output</th></tr>
+    <tr><td>1</td><td>A0 warm-up, A1 Persona detective</td><td>2.1.1, 2.1.5</td><td>Persona v1</td></tr>
+    <tr><td>2</td><td>A2 Research sorter, A3 Primary research (role-play interviews, survey)</td><td>2.1.2, 2.1.3</td><td>First-hand data</td></tr>
+    <tr><td>3</td><td>A4 Secondary research, A5 Journey storyboard</td><td>2.1.4, 2.1.6</td><td>Persona v2, pain points</td></tr>
+    <tr><td>4</td><td>A6 Product analysis (bring real products)</td><td>2.1.7</td><td>Product analysis table</td></tr>
+    <tr><td>5</td><td>B1 Problem statement, B2 Specification</td><td>2.1.8, 2.1.9</td><td>Problem statement, spec</td></tr>
+    <tr><td>6</td><td>C1 Crazy 8s and SCAMPER, C2 Evaluation matrix</td><td>2.1.10, 2.1.11</td><td>Chosen idea</td></tr>
+    <tr><td>7–8</td><td>D1 Mock-up and user test, D2 Model–test–refine log</td><td>2.1.12, 2.1.13</td><td>Iterations with data</td></tr>
+    <tr><td>9</td><td>D3 Detailed drawings</td><td>2.1.14</td><td>Orthographic and assembly drawings</td></tr>
+    <tr><td>10–11</td><td>E1 Virtual prototype (CAD)</td><td>2.1.15</td><td>Rendered, annotated model</td></tr>
+    <tr><td>12</td><td>E2 Present and defend, E3 Outline the journey</td><td>2.1.15, 2.1.1</td><td>Pitch, reflection</td></tr>
+  </table></div>
+</section>
+
+<div class="userstrip" id="ustrip"></div>
+
+<!-- ============ STAGE A ============ -->
+<section class="stage" data-stage="A" id="stA">
+  <div class="stagehead"><div class="big" style="background:var(--A)">A</div>
+    <div><h2>Empathize</h2><p>Understand your user, their problems and the opportunities for a meaningful redesign. Gather evidence before you form opinions.</p></div></div>
+
+  <details class="act" open>
+    <summary><span class="code">A0</span><span><h3>Map the journey before you walk it</h3><span class="chips"><span class="chip">2.1.1</span><span class="chip">Outline</span><span class="chip plain">5 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-A0">Done</label></summary>
+    <div class="actbody">
+      <p>Click the five stage descriptions in the order you think a designer uses them. You'll come back and outline each stage properly at the end (E3).</p>
+      <div class="order" id="orderPool"></div>
+      <div class="slots" id="orderSlots"></div>
+      <p><button class="btn small" id="orderCheck">Check our order</button> <button class="btn small" id="orderReset">Start again</button> <span id="orderMsg" class="hint"></span></p>
+      <div class="teacher"><strong>Teacher note:</strong> Point out that research (2.1.2) is not a stage of its own. It runs through every stage, which is why it appears again in B, C and D.</div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">A1</span><span><h3>Persona detective</h3><span class="chips"><span class="chip">2.1.5</span><span class="chip">Identify</span><span class="chip plain">25 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-A1">Done</label></summary>
+    <div class="actbody">
+      <ol class="steps">
+        <li>Read your case file. Use only the evidence provided. No guesses yet.</li>
+        <li>Sort every clue: tap a clue, then tap the box it belongs in. Tap a placed clue to send it back.</li>
+        <li>Write three assumptions about what your user needs, then prove or disprove each with evidence.</li>
+        <li>Build your persona. The quote must come from the evidence, not from your imagination.</li>
+      </ol>
+      <h4>Case file</h4>
+      <div id="casefile"></div>
+      <h4>Analyse the evidence</h4>
+      <div class="pool" id="pool" aria-label="Unsorted clues"></div>
+      <div class="buckets" id="buckets"></div>
+      <h4>Make and prove assumptions</h4>
+      <div class="tablewrap"><table>
+        <tr><th>Our assumption about what the user needs</th><th>Verdict</th><th>Which evidence?</th></tr>
+        <tr><td><input type="text" data-f="as1"></td><td><select data-f="as1v"><option value="">Choose</option><option>Supported by evidence</option><option>Not supported</option><option>Needs more research</option></select></td><td><input type="text" data-f="as1e"></td></tr>
+        <tr><td><input type="text" data-f="as2"></td><td><select data-f="as2v"><option value="">Choose</option><option>Supported by evidence</option><option>Not supported</option><option>Needs more research</option></select></td><td><input type="text" data-f="as2e"></td></tr>
+        <tr><td><input type="text" data-f="as3"></td><td><select data-f="as3v"><option value="">Choose</option><option>Supported by evidence</option><option>Not supported</option><option>Needs more research</option></select></td><td><input type="text" data-f="as3e"></td></tr>
+      </table></div>
+      <p class="hint">Anything marked "Needs more research" becomes a question for your interview in A3.</p>
+      <h4>Build the persona</h4>
+      <div class="grid2">
+        <div>
+          <div class="grid3">
+            <div class="field"><label>Name</label><input type="text" data-f="p-name"></div>
+            <div class="field"><label>Age</label><input type="text" data-f="p-age"></div>
+            <div class="field"><label>Occupation</label><input type="text" data-f="p-occ"></div>
+          </div>
+          <div class="field"><label>Context and environment <small>where they live, study, use the product</small></label><textarea data-f="p-ctx"></textarea></div>
+          <div class="field"><label>Goals <small>what they want to achieve</small></label><textarea data-f="p-goals"></textarea></div>
+          <div class="field"><label>Behaviours <small>what they actually do</small></label><textarea data-f="p-beh"></textarea></div>
+          <div class="field"><label>Frustrations and pain points</label><textarea data-f="p-frus"></textarea></div>
+          <div class="field"><label>Needs</label><textarea data-f="p-needs"></textarea></div>
+          <div class="field"><label>Quote from the evidence</label><textarea data-f="p-quote"></textarea></div>
+        </div>
+        <div><div class="persona" id="personaCard"></div></div>
+      </div>
+      <div class="teacher"><strong>Teacher note:</strong> 2.1.5 says a persona represents a <em>group</em> of end-users. Ask: "Who else is like this person?" Push teams to name the user group (e.g. older adults with reduced grip strength) beneath the persona name.</div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">A2</span><span><h3>Research sorter</h3><span class="chips"><span class="chip">2.1.2</span><span class="chip">Distinguish</span><span class="chip plain">10 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-A2">Done</label></summary>
+    <div class="actbody">
+      <p>For each piece of research, decide who collected it (primary or secondary) and what kind of data it is (qualitative or quantitative). Then check.</p>
+      <div class="tablewrap"><table class="rs" id="rsTable"></table></div>
+      <p><button class="btn small" id="rsCheck">Check answers</button> <span id="rsMsg" class="hint"></span></p>
+      <div class="field"><label>In one sentence, distinguish primary from secondary research, and explain how each helped (or could help) understand your user.</label><textarea data-f="rs-reflect"></textarea></div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">A3</span><span><h3>Collect first-hand data</h3><span class="chips"><span class="chip">2.1.3</span><span class="chip">Apply</span><span class="chip">Analyse</span><span class="chip plain">35 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-A3">Done</label></summary>
+    <div class="actbody">
+      <ol class="steps">
+        <li>Plan five interview questions. Mix open questions (stories, feelings) with closed ones (numbers, ratings).</li>
+        <li>Role-play: one teammate becomes your user using only the case file; swap with another team for a cold interview if possible. Better still, interview a real person who fits the user group.</li>
+        <li>Run one quick measurement or observation. Examples: time how long it takes to find an item, weigh a bag, count the steps in a task.</li>
+        <li>Analyse: what did you learn that the case file didn't tell you?</li>
+      </ol>
+      <div class="tablewrap"><table>
+        <tr><th>Question</th><th>Type</th><th>Answer we got</th></tr>
+        <tbody id="qRows"></tbody>
+      </table></div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>Observation or measurement we ran <small>method, sample size</small></label><textarea data-f="pr-method"></textarea></div>
+        <div class="field"><label>Data we collected <small>numbers, notes</small></label><textarea data-f="pr-data"></textarea></div>
+      </div>
+      <div class="field"><label>Analysis: what does this data tell us about the user's requirements?</label><textarea data-f="pr-analysis"></textarea></div>
+      <div class="teacher"><strong>Teacher note:</strong> 2.1.3 lists observations, interviews, surveys, questionnaires, focus groups, material testing and product analysis. Make each team name which methods they used. A good extension is a 5-question class survey on a shared form, which gives quantitative data quickly.</div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">A4</span><span><h3>Back it up with secondary research</h3><span class="chips"><span class="chip">2.1.4</span><span class="chip">Analyse</span><span class="chip plain">25 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-A4">Done</label></summary>
+    <div class="actbody">
+      <p>Find two third-party sources that support or challenge your primary research.</p>
+      <p class="note" id="secHint"></p>
+      <div class="tablewrap"><table>
+        <tr><th>Source (title, author, link)</th><th>Type</th><th>Key data</th><th>Does it support or challenge our primary data?</th></tr>
+        <tr><td><textarea data-f="s1src"></textarea></td><td><select data-f="s1t"><option value="">Choose</option><option>Internet-based</option><option>Government data and statistics</option><option>University research</option><option>Literature search</option></select></td><td><textarea data-f="s1d"></textarea></td><td><textarea data-f="s1v"></textarea></td></tr>
+        <tr><td><textarea data-f="s2src"></textarea></td><td><select data-f="s2t"><option value="">Choose</option><option>Internet-based</option><option>Government data and statistics</option><option>University research</option><option>Literature search</option></select></td><td><textarea data-f="s2d"></textarea></td><td><textarea data-f="s2v"></textarea></td></tr>
+      </table></div>
+      <div class="field" style="margin-top:12px"><label>Persona upgrade: what did you change in your persona after A3 and A4, and why?</label><textarea data-f="p-upgrade"></textarea></div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">A5</span><span><h3>Journey storyboard</h3><span class="chips"><span class="chip">2.1.6</span><span class="chip">Map</span><span class="chip">Identify</span><span class="chip plain">30 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-A5">Done</label></summary>
+    <div class="actbody">
+      <p>Map your user carrying out the task, step by step. Sketch each frame on paper, write the step here, and rate how the user feels. Flag the pain points.</p>
+      <div class="sb" id="sb"></div>
+      <h4>Emotion curve</h4>
+      <div class="emo" id="emo"></div>
+      <div class="field"><label>The biggest pain point, and the design opportunity it reveals</label><textarea data-f="sb-opp"></textarea></div>
+      <div class="teacher"><strong>Teacher note:</strong> The lowest point on the curve is usually the strongest design opportunity. Ask teams whether their lowest point matches the quote in their persona.</div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">A6</span><span><h3>Product analysis</h3><span class="chips"><span class="chip">2.1.7</span><span class="chip">Analyse</span><span class="chip plain">40 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-A6">Done</label></summary>
+    <div class="actbody">
+      <p>Analyse two existing products: one the user already has, and one that solves a similar problem or could inspire a solution. Handle real products where you can.</p>
+      <p class="note" id="paHint"></p>
+      <div class="tablewrap"><table>
+        <tr><th></th><th>Product 1 (current)</th><th>Product 2 (inspiration)</th></tr>
+        <tr><th>Name and photo reference</th><td><input type="text" data-f="pa1n"></td><td><input type="text" data-f="pa2n"></td></tr>
+        <tr><th>Function: what does it do?</th><td><textarea data-f="pa1f"></textarea></td><td><textarea data-f="pa2f"></textarea></td></tr>
+        <tr><th>Performance: how well? Measure something</th><td><textarea data-f="pa1p"></textarea></td><td><textarea data-f="pa2p"></textarea></td></tr>
+        <tr><th>Features worth keeping</th><td><textarea data-f="pa1k"></textarea></td><td><textarea data-f="pa2k"></textarea></td></tr>
+        <tr><th>Features that fail our user</th><td><textarea data-f="pa1x"></textarea></td><td><textarea data-f="pa2x"></textarea></td></tr>
+        <tr><th>Materials and manufacture</th><td><textarea data-f="pa1m"></textarea></td><td><textarea data-f="pa2m"></textarea></td></tr>
+      </table></div>
+    </div>
+  </details>
+</section>
+
+<!-- ============ STAGE B ============ -->
+<section class="stage" data-stage="B" id="stB">
+  <div class="stagehead"><div class="big" style="background:var(--B)">B</div>
+    <div><h2>Define</h2><p>Turn your research findings into a clear design challenge and requirements you can test against.</p></div></div>
+
+  <details class="act" open>
+    <summary><span class="code">B1</span><span><h3>Problem statement builder</h3><span class="chips"><span class="chip">2.1.8</span><span class="chip">Explain</span><span class="chip plain">20 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-B1">Done</label></summary>
+    <div class="actbody">
+      <p>A good problem statement names the user, the need and the evidence. It does not name the solution yet.</p>
+      <div class="grid2">
+        <div class="field"><label>Who <small>the user group, not only the persona name</small></label><input type="text" data-f="ps-who"></div>
+        <div class="field"><label>Needs a way to <small>a verb, not a product</small></label><input type="text" data-f="ps-need"></div>
+        <div class="field"><label>Because <small>the insight from your evidence</small></label><input type="text" data-f="ps-why"></div>
+        <div class="field"><label>When or where <small>context</small></label><input type="text" data-f="ps-ctx"></div>
+      </div>
+      <div class="preview" id="psPreview"></div>
+      <div class="field" style="margin-top:12px"><label>Final problem statement in your own words, with design intentions</label><textarea data-f="ps-final"></textarea></div>
+      <div class="teacher"><strong>Teacher note:</strong> The checker flags product nouns ("bag", "chair", "opener"). Discuss why "a backpack that…" closes off ideas that "a way to carry… without…" keeps open.</div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">B2</span><span><h3>Design specification</h3><span class="chips"><span class="chip">2.1.9</span><span class="chip">Construct</span><span class="chip plain">40 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-B2">Done</label></summary>
+    <div class="actbody">
+      <p>Write success criteria for the redesign. Every line needs a source in your research and a way to test it. The checker flags vague words that have no measurable value.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>Category</th><th>Specification</th><th>Essential or desirable</th><th>Evidence it comes from</th><th>How we'll test it</th><th></th></tr></thead>
+        <tbody id="specRows"></tbody>
+      </table></div>
+      <p><button class="btn small" id="specAdd">Add a specification</button></p>
+      <div class="teacher"><strong>Teacher note:</strong> Aim for 8–10 lines with at least 5 essential. Weak: "The product should be comfortable." Strong: "Contact pressure on the shoulder must not exceed the current bag's when carrying a 6 kg load (pressure-sensor or user rating test)." Specification numbers are reused in C2, D2 and E1.</div>
+    </div>
+  </details>
+</section>
+
+<!-- ============ STAGE C ============ -->
+<section class="stage" data-stage="C" id="stC">
+  <div class="stagehead"><div class="big" style="background:var(--C)">C</div>
+    <div><h2>Ideate</h2><p>Explore distinct ways to solve the problem, then evaluate and refine them against your specification before you commit.</p></div></div>
+
+  <details class="act" open>
+    <summary><span class="code">C1</span><span><h3>Crazy 8s and SCAMPER</h3><span class="chips"><span class="chip">2.1.10</span><span class="chip">Apply</span><span class="chip plain">30 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-C1">Done</label></summary>
+    <div class="actbody">
+      <ol class="steps">
+        <li>Fold an A3 sheet into eight. Each person sketches eight ideas in eight minutes, one per minute. Quantity over quality.</li>
+        <li>Stuck? Spin a SCAMPER prompt.</li>
+        <li>As a team, write the eight most different ideas below. Different means a different principle, not the same idea in another colour.</li>
+      </ol>
+      <div class="timer" data-sec="480"><output>8:00</output><button class="btn small" data-t="go">Start</button><button class="btn small" data-t="reset">Reset</button></div>
+      <div class="card-draw" id="scamper">Spin for a SCAMPER prompt.</div>
+      <button class="btn small" id="scamperBtn">Spin SCAMPER</button>
+      <div class="c8" style="margin-top:12px" id="c8"></div>
+      <div class="grid3" style="margin-top:12px">
+        <div class="field"><label>Shortlisted idea 1</label><input type="text" data-f="sh1"></div>
+        <div class="field"><label>Shortlisted idea 2</label><input type="text" data-f="sh2"></div>
+        <div class="field"><label>Shortlisted idea 3</label><input type="text" data-f="sh3"></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">C2</span><span><h3>Evaluation matrix</h3><span class="chips"><span class="chip">2.1.11</span><span class="chip">Compare</span><span class="chip plain">20 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-C2">Done</label></summary>
+    <div class="actbody">
+      <p>Score each shortlisted idea against your essential specifications (0 = doesn't meet, 3 = fully meets). The matrix pulls from B2 and C1 automatically.</p>
+      <div class="tablewrap" id="matrix"></div>
+      <div class="field" style="margin-top:12px"><label>Our chosen idea, and how we'll refine it using the best features of the others</label><textarea data-f="chosen"></textarea></div>
+      <div class="teacher"><strong>Teacher note:</strong> The highest score isn't automatically the winner. Ask teams to justify the choice against the user's main frustration, then combine strengths from the runners-up. That combination is the "iterative analysis" in 2.1.11.</div>
+    </div>
+  </details>
+</section>
+
+<!-- ============ STAGE D ============ -->
+<section class="stage" data-stage="D" id="stD">
+  <div class="stagehead"><div class="big" style="background:var(--D)">D</div>
+    <div><h2>Develop</h2><p>Improve the solution through testing, refinement and technical communication.</p></div></div>
+
+  <details class="act" open>
+    <summary><span class="code">D1</span><span><h3>Mock-up and user test</h3><span class="chips"><span class="chip">2.1.13</span><span class="chip">Create</span><span class="chip plain">60 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-D1">Done</label></summary>
+    <div class="actbody">
+      <ol class="steps">
+        <li>Choose the lowest fidelity that can answer your question. Card, foam, tape and string are enough for most first tests.</li>
+        <li>Build the mock-up at full scale where size matters.</li>
+        <li>Test it with an end-user (or a classmate acting as your persona, following the case file) and measure something. A model without performance data is a sculpture.</li>
+      </ol>
+      <div class="grid2">
+        <div class="field"><label>Question this model must answer</label><textarea data-f="mu-q" placeholder="e.g. Can the user reach the bottle without help while seated?"></textarea></div>
+        <div class="field"><label>Fidelity and materials</label><select data-f="mu-fid"><option value="">Choose</option><option>Sketch model (paper, card)</option><option>Block model (foam, wood)</option><option>Working model (selected function only)</option><option>3D-printed or laser-cut part</option><option>Digital (CAD) model</option></select></div>
+        <div class="field"><label>Specifications tested <small>use numbers from B2</small></label><input type="text" data-f="mu-specs"></div>
+        <div class="field"><label>Test method and metric</label><input type="text" data-f="mu-method" placeholder="e.g. time to retrieve phone, 5 trials"></div>
+        <div class="field"><label>Performance data</label><textarea data-f="mu-data"></textarea></div>
+        <div class="field"><label>What the user said</label><textarea data-f="mu-quote"></textarea></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">D2</span><span><h3>Model, test, refine log</h3><span class="chips"><span class="chip">2.1.12</span><span class="chip">Demonstrate</span><span class="chip plain">60 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-D2">Done</label></summary>
+    <div class="actbody">
+      <p>Record every loop. Keep going until all essential specifications are met or you can explain why one can't be.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Version</th><th>Model and fidelity</th><th>What we tested</th><th>Result and data</th><th>Refinement for next version</th><th>Specs now met</th><th></th></tr></thead>
+        <tbody id="iterRows"></tbody>
+      </table></div>
+      <p><button class="btn small" id="iterAdd">Add an iteration</button></p>
+      <div class="teacher"><strong>Teacher note:</strong> Minimum three versions. Photograph each model next to its log row; the photo strip makes the iteration visible in the final presentation.</div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">D3</span><span><h3>Detailed drawings</h3><span class="chips"><span class="chip">2.1.14</span><span class="chip">Create</span><span class="chip plain">60 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-D3">Done</label></summary>
+    <div class="actbody">
+      <p>Could a manufacturer make it from your drawings alone? Tick each item when your drawing set includes it.</p>
+      <div class="checklist">
+        <label><input type="checkbox" data-f="dr1">Orthographic projection of the assembled product (front, plan, end), third-angle, with a title block</label>
+        <label><input type="checkbox" data-f="dr2">Overall dimensions in mm, taken from anthropometric or product data</label>
+        <label><input type="checkbox" data-f="dr3">Scale stated on every view</label>
+        <label><input type="checkbox" data-f="dr4">Component drawings for at least two individual parts, fully dimensioned</label>
+        <label><input type="checkbox" data-f="dr5">Exploded or assembly drawing showing how parts fit together</label>
+        <label><input type="checkbox" data-f="dr6">Parts list naming each component, quantity and material</label>
+      </div>
+      <div class="field" style="margin-top:10px"><label>Where did our key dimensions come from?</label><textarea data-f="dr-src"></textarea></div>
+    </div>
+  </details>
+</section>
+
+<!-- ============ STAGE E ============ -->
+<section class="stage" data-stage="E" id="stE">
+  <div class="stagehead"><div class="big" style="background:var(--E)">E</div>
+    <div><h2>Present</h2><p>Showcase the final solution and prove its value to the user.</p></div></div>
+
+  <details class="act" open>
+    <summary><span class="code">E1</span><span><h3>Virtual prototype</h3><span class="chips"><span class="chip">2.1.15</span><span class="chip">Create</span><span class="chip plain">120 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-E1">Done</label></summary>
+    <div class="actbody">
+      <div class="grid2">
+        <div class="field"><label>Software</label><select data-f="vp-sw"><option value="">Choose</option><option>Fusion</option><option>Onshape</option><option>Tinkercad</option><option>SketchUp</option><option>Other</option></select></div>
+        <div class="field"><label>Link or file name of the model</label><input type="text" data-f="vp-link"></div>
+      </div>
+      <h4>Your virtual prototype must show</h4>
+      <div class="checklist">
+        <label><input type="checkbox" data-f="vp1">The complete product modelled to the dimensions in D3</label>
+        <label><input type="checkbox" data-f="vp2">At least three rendered views with realistic materials</label>
+        <label><input type="checkbox" data-f="vp3">An exploded or section view</label>
+        <label><input type="checkbox" data-f="vp4">The product in context: in use with a human figure or in the user's environment, for scale</label>
+        <label><input type="checkbox" data-f="vp5">Call-outs for at least three usability features</label>
+        <label><input type="checkbox" data-f="vp6">A before-and-after comparison with the existing product from A6</label>
+      </div>
+      <h4>Feature call-outs</h4>
+      <div class="tablewrap"><table>
+        <tr><th>Usability feature</th><th>Specification it meets (#)</th><th>Evidence it works (from D1, D2)</th></tr>
+        <tr><td><input type="text" data-f="cf1"></td><td><input type="text" data-f="cf1s"></td><td><input type="text" data-f="cf1e"></td></tr>
+        <tr><td><input type="text" data-f="cf2"></td><td><input type="text" data-f="cf2s"></td><td><input type="text" data-f="cf2e"></td></tr>
+        <tr><td><input type="text" data-f="cf3"></td><td><input type="text" data-f="cf3s"></td><td><input type="text" data-f="cf3e"></td></tr>
+      </table></div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">E2</span><span><h3>Present and defend</h3><span class="chips"><span class="chip">2.1.15</span><span class="chip">Explain</span><span class="chip plain">3 min per team</span></span></span><label class="donebox"><input type="checkbox" data-f="done-E2">Done</label></summary>
+    <div class="actbody">
+      <p>Two minutes to pitch, one minute to defend. The audience draws challenge cards and asks them.</p>
+      <div class="grid2">
+        <div class="field"><label>1. Who our user is</label><textarea data-f="pt1"></textarea></div>
+        <div class="field"><label>2. Their main frustration, and the evidence</label><textarea data-f="pt2"></textarea></div>
+        <div class="field"><label>3. Our problem statement</label><textarea data-f="pt3"></textarea></div>
+        <div class="field"><label>4. How the design solves it: key features</label><textarea data-f="pt4"></textarea></div>
+        <div class="field"><label>5. Proof: test data and specifications met</label><textarea data-f="pt5"></textarea></div>
+        <div class="field"><label>6. One surprising insight</label><textarea data-f="pt6"></textarea></div>
+      </div>
+      <div class="timer" data-sec="120"><output>2:00</output><button class="btn small" data-t="go">Start pitch</button><button class="btn small" data-t="reset">Reset</button></div>
+      <h4>Audience challenge cards</h4>
+      <div class="card-draw" id="chal">Draw a card to challenge the presenting team.</div>
+      <button class="btn small" id="chalBtn">Draw a challenge card</button>
+      <h4>Peer feedback received</h4>
+      <div class="grid2">
+        <div class="field"><label>Two strengths</label><textarea data-f="pf-s"></textarea></div>
+        <div class="field"><label>One improvement</label><textarea data-f="pf-w"></textarea></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="act">
+    <summary><span class="code">E3</span><span><h3>Outline the journey you just took</h3><span class="chips"><span class="chip">2.1.1</span><span class="chip">Outline</span><span class="chip plain">15 min</span></span></span><label class="donebox"><input type="checkbox" data-f="done-E3">Done</label></summary>
+    <div class="actbody">
+      <p>Outline each stage of the design process using your own project as the example. One or two sentences each.</p>
+      <div class="field"><label>Empathize</label><textarea data-f="ol-A"></textarea></div>
+      <div class="field"><label>Define</label><textarea data-f="ol-B"></textarea></div>
+      <div class="field"><label>Ideate</label><textarea data-f="ol-C"></textarea></div>
+      <div class="field"><label>Develop</label><textarea data-f="ol-D"></textarea></div>
+      <div class="field"><label>Present</label><textarea data-f="ol-E"></textarea></div>
+      <div class="field"><label>Where did research happen outside Empathize? Give two examples.</label><textarea data-f="ol-R"></textarea></div>
+      <div class="teacher"><strong>Teacher note:</strong> This doubles as exit-ticket evidence for 2.1.1 and 2.1.2. A follow-up exam-style task: "Outline how primary research informed the development of a persona" (4 marks).</div>
+    </div>
+  </details>
+</section>
+
+<footer>Work saves automatically in this browser. Use "Open team journal" to review or print everything in one place.
+  <button class="btn small" id="wipe" style="margin-left:8px">Clear our work</button></footer>
+</div>
+
+<dialog id="journal">
+  <div class="jhead"><h2 id="jTitle">Team journal</h2><span><button class="btn small" id="jPrint">Print</button> <button class="btn small" id="jClose">Close</button></span></div>
+  <div class="jbody" id="jBody"></div>
+</dialog>
+
+<script>
+const USERS=[
+ {id:1,role:"High school student",age:16,product:"school backpack",
+  clues:["Travels to school by public bus","Journey takes about 50 minutes","Carries a laptop, textbooks and a water bottle","Often stands during the journey","Uses phone to listen to music","Shoulder discomfort from the backpack","Doesn't like products that attract attention","Eats breakfast while travelling"],
+  evidence:["Observation: frequently places backpack on the floor while standing","Interview: \"I don't really care if the bag is light. I just don't want it digging into my shoulders when I'm standing.\""],
+  sec:"Look for recommended school-bag load as a share of body weight, shoulder and torso anthropometric data for 16-year-olds, and research on load carriage and shoulder pressure."},
+ {id:2,role:"University student",age:20,product:"cable and charger kit",
+  clues:["Studies engineering","Spends long hours in the library and cafés","Uses a laptop and tablet","Often has multiple chargers and cables","Finds it difficult to keep items organised","Needs quick access to devices","Works in both quiet and noisy environments","Values minimalist and functional design"],
+  evidence:["Photo: current setup in his backpack, cables tangled","Survey: \"I always spend 5–10 minutes untangling cables. It's frustrating, especially when I'm in a hurry.\""],
+  sec:"Look for student device-ownership surveys, charging and connector standards, and the dimensions of common chargers and power banks."},
+ {id:3,role:"Office worker",age:28,product:"office chair and desk setup",
+  clues:["Works in a modern office (hybrid)","Sits at a desk for long periods","Frequently attends online meetings","Experiences neck and lower back pain","Uses a laptop and external monitor","Likes clean and modern aesthetics","Sometimes works from home","Finds current chair uncomfortable"],
+  evidence:["Observation: often adjusts sitting position and uses a cushion","Interview: \"By the end of the day my back is really sore. I keep changing positions to try to find a comfortable one.\""],
+  sec:"Look for seated anthropometric data (popliteal height, lumbar position), ergonomic guidance on workstation setup, and research on prolonged sitting."},
+ {id:4,role:"Elderly resident",age:72,product:"jar and its lid",
+  clues:["Retired, lives alone","Enjoys cooking, especially traditional foods","Has reduced hand strength due to arthritis","Finds it difficult to open jars and bottles","Uses public transport or walks locally","Values independence","Likes products that are simple to use","Wants to continue cooking without relying on others"],
+  evidence:["Photo: difficulty opening a jar lid","Interview: \"I can still cook, but opening jars is very difficult. I don't like asking my family for help.\""],
+  sec:"Look for grip and pinch strength data by age, arthritis prevalence statistics, research on the torque needed to open jar lids, and inclusive design guidance."},
+ {id:5,role:"Young parent",age:34,product:"nappy bag",
+  clues:["Works part-time","Cares for a 2-year-old child","Often carries a nappy bag, groceries and personal items","Uses a stroller when outside","Needs to quickly access essential items","Finds it difficult to carry multiple bags","Uses public transport and taxis","Values lightweight, practical and durable products"],
+  evidence:["Photo: current nappy bag contents, often disorganised","Observation: takes a long time to find items when the baby is crying; often juggles the stroller and bags"],
+  sec:"Look for data on what carers carry, stroller dimensions and handle heights, and public transport accessibility guidance for people with strollers."},
+ {id:6,role:"Hobby cyclist",age:45,product:"phone and snack storage on a bike",
+  clues:["Enjoys cycling on weekends","Uses a road bike and sometimes a mountain bike","Carries a phone, keys and energy snacks","Finds it difficult to access items while riding","Worries about keeping phone safe","Rides in hot and rainy conditions","Values performance, safety and comfort","Prefers products that don't affect aerodynamics"],
+  evidence:["Photo: current setup, difficult to access phone","Interview: \"I have to stop and take off my gloves every time I need my phone or snacks. It's annoying.\""],
+  sec:"Look for bike frame geometry data, ingress protection (IP) ratings for water resistance, local rainfall and temperature data, and reviews of existing mounts."},
+ {id:7,role:"Secondary school teacher",age:40,product:"teacher bag",
+  clues:["Teaches multiple classes a day","Carries a laptop, books, papers and teaching materials","Moves between classrooms frequently","Often has to set up quickly","Finds current bag heavy and disorganised","Needs a professional appearance","Sometimes travels between school campuses","Wants easy access to frequently used items"],
+  evidence:["Photo: contents of current teacher bag","Survey: \"I often waste time looking for a specific resource. It would be so much easier if I could access everything quickly.\""],
+  sec:"Look for teacher workload surveys, A4 and laptop dimensions, and guidance on safe load carriage for adults."},
+ {id:8,role:"Teenager who uses a wheelchair",age:15,product:"bag mounted on the back of a wheelchair",
+  clues:["Uses a wheelchair full-time","Spends a lot of time on a tablet and laptop","Finds it difficult to reach items in a backpack placed behind the chair","Needs quick and easy access to devices, water bottle and personal items","Attends school and after-school clubs","Values independence and a modern design","Likes products that can be customised","Wants to carry items safely without affecting mobility"],
+  evidence:["Photo: current bag position on the back of the wheelchair","Observation: struggles to reach the bag without assistance; often asks a friend to hand items"],
+  sec:"Look for wheelchair dimensions, seated reach-range data, accessibility design guidelines, and wheelchair users' own reviews and forums."}
+];
+const STAGES=[["A","Empathize","Understanding users, problems and opportunities for meaningful redesign."],["B","Define","Transforming research findings into a clear design challenge and requirements."],["C","Ideate","Exploring, evaluating and refining possible solutions before development."],["D","Develop","Improving the solution through testing, refinement and technical communication."],["E","Present","Showcasing the final solution and proving its value to users."]];
+const POS=[[110,150],[280,70],[470,150],[660,70],[850,150]];
+const CATS=["Demographics","Abilities and skills","Behaviour","Goals and concerns","Environment"];
+const RS=[
+ ["You time how long User #5 takes to find a nappy in her bag over five trials.","P","N"],
+ ["An interview quote from User #4 about not wanting to ask family for help.","P","L"],
+ ["Government statistics on arthritis by age group.","S","N"],
+ ["A university study reporting shoulder pressure under different backpack loads.","S","N"],
+ ["Online reviews describing what buyers like about three cable organisers.","S","L"],
+ ["Twenty students rate their cable frustration on a 1–5 scale in your survey.","P","N"],
+ ["Photos and field notes from watching cyclists at a café stop.","P","L"],
+ ["A published anthropometric table of hand length for 65–80-year-olds.","S","N"],
+ ["A focus group of five teachers discussing their bag routines.","P","L"],
+ ["Measuring the force needed to open three jars using a spring balance.","P","N"]
+];
+const SCAMPER=[["Substitute","What material, part or energy source in the {p} could be swapped for something else?"],["Combine","What could the {p} combine with that the user already carries or uses?"],["Adapt","What product from a completely different field solves a similar problem? Adapt it to the {p}."],["Modify","What happens if one part of the {p} is made much bigger, smaller, softer or adjustable?"],["Put to another use","How could the {p} do a second job for this user?"],["Eliminate","Which part of the {p} could you remove entirely? What would the user gain?"],["Reverse","Flip the order or orientation. What if the user's task worked the other way round?"]];
+const CHAL=["Where did you get that information?","Which piece of evidence supports your main design feature?","How would your design change for a different user in the same group?","Which essential specification was hardest to meet, and did you meet it?","What did your test data show that surprised you?","What would the user say is still annoying?","Why did you reject your second-best idea?","How do you know your dimensions are right for this user?","What would you test next if you had one more week?","How could this product be manufactured?"];
+const SOLWORDS=["bag","backpack","app","box","case","holder","chair","cushion","opener","organiser","organizer","mount","pouch","strap","clip","device","gadget","design a","make a","create a"];
+const VAGUE=["easy","easily","nice","good","comfortable","light","lightweight","strong","cheap","modern","attractive","durable","quick","quickly","small","big","safe","simple"];
+
+const KEY="dp-design-studio-v1";
+let S={user:0,stage:"A",f:{},sort:{},order:[],specs:[],iters:[],scores:{}};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const U=()=>USERS[S.user-1];
+const F=k=>S.f[k]||"";
+if(!S.specs.length)S.specs=[{},{},{},{}].map(()=>({cat:"",text:"",ed:"",src:"",test:""}));
+if(!S.iters.length)S.iters=[{v:"V1",m:"",t:"",r:"",n:"",s:""}];
+
+/* user select */
+const sel=$("#userSel");
+sel.innerHTML='<option value="0">Choose a mystery user</option>'+USERS.map(u=>`<option value="${u.id}">Mystery user #${u.id}: ${esc(u.role)}, ${u.age}</option>`).join("");
+sel.value=S.user;
+sel.onchange=()=>{S.user=+sel.value;save();renderUser()};
+
+/* generated field blocks (must exist before binding) */
+$("#qRows").innerHTML=[1,2,3,4,5].map(i=>`<tr><td><input type="text" data-f="q${i}"></td><td><select data-f="q${i}t"><option value="">Choose</option><option>Open</option><option>Closed</option></select></td><td><textarea data-f="q${i}a"></textarea></td></tr>`).join("");
+$("#sb").innerHTML=[1,2,3,4,5,6].map(i=>`<div class="frame"><div class="sk">Frame ${i}: sketch on paper</div><textarea data-f="sb${i}" placeholder="What happens?"></textarea><label>Feels <input type="range" min="-2" max="2" step="1" data-f="sbe${i}" aria-label="Emotion in frame ${i}"></label><label><input type="checkbox" data-f="sbp${i}">Pain point</label></div>`).join("");
+$("#c8").innerHTML=[1,2,3,4,5,6,7,8].map(i=>`<div class="field"><label>Idea ${i}</label><textarea data-f="c8-${i}"></textarea></div>`).join("");
+$("#rsTable").innerHTML=`<tr><th>Research</th><th>Source</th><th>Data</th><th></th></tr>`+RS.map((r,i)=>`<tr><td>${esc(r[0])}</td><td><select data-f="rs${i}p"><option value="">Choose</option><option value="P">Primary</option><option value="S">Secondary</option></select></td><td><select data-f="rs${i}q"><option value="">Choose</option><option value="L">Qualitative</option><option value="N">Quantitative</option></select></td><td class="mark" id="rsm${i}"></td></tr>`).join("");
+
+/* binding */
+function bind(root){
+  root.querySelectorAll("[data-f]").forEach(el=>{
+    const k=el.dataset.f;
+    if(S.f[k]!=null){el.type==="checkbox"?el.checked=!!S.f[k]:el.value=S.f[k]}
+    const h=()=>{S.f[k]=el.type==="checkbox"?el.checked:el.value;save();react(k)};
+    el.addEventListener("input",h);el.addEventListener("change",h);
+  });
+}
+bind(document);
+function react(k){
+  if(k.startsWith("p-"))renderPersona();
+  if(k.startsWith("ps-"))renderPS();
+  if(k.startsWith("sb"))renderEmo();
+  if(k.startsWith("sh"))renderMatrix();
+  if(k.startsWith("done-"))renderNodes();
+}
+
+/* stage nav */
+function renderNodes(){
+  const g=$("#nodes");
+  g.innerHTML=STAGES.map((s,i)=>{
+    const acts=$$(`#st${s[0]} [data-f^="done-"]`).length;
+    const done=$$(`#st${s[0]} [data-f^="done-"]`).filter(e=>S.f[e.dataset.f]).length;
+    const on=S.stage===s[0];
+    const [x,y]=POS[i];
+    const ty=y<100?y-62:y+72;
+    return `<g class="node" tabindex="0" role="tab" aria-selected="${on}" aria-label="Stage ${s[0]}: ${s[1]}, ${done} of ${acts} activities done" data-s="${s[0]}">
+      <circle class="bg" cx="${x}" cy="${y}" r="${on?52:40}" fill="var(--${s[0]})" opacity="${on?1:.8}"/>
+      ${done===acts&&acts?`<circle cx="${x}" cy="${y}" r="${on?60:48}" fill="none" stroke="var(--${s[0]}d)" stroke-width="3" stroke-dasharray="4 5"/>`:""}
+      <text class="letter" x="${x}" y="${y+12}" text-anchor="middle">${s[0]}</text>
+      <text class="name" x="${x}" y="${ty}" text-anchor="middle">${s[1]}</text>
+      <text class="prog" x="${x}" y="${ty+20}" text-anchor="middle">${done}/${acts} done</text></g>`;
+  }).join("");
+  g.querySelectorAll(".node").forEach(n=>{
+    const go=()=>{S.stage=n.dataset.s;save();showStage()};
+    n.onclick=go;n.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}};
+  });
+}
+function showStage(){$$(".stage").forEach(s=>s.classList.toggle("on",s.dataset.stage===S.stage));renderNodes()}
+
+/* user-dependent */
+function renderUser(){
+  const u=U();
+  $("#ustrip").innerHTML=u?`<span class="tag">Mystery user #${u.id}</span><p>${esc(u.role)}, ${u.age}. Existing product to redesign: ${esc(u.product)}.</p>`:`<span class="tag">No user yet</span><p>Choose your team's mystery user from the menu above to open the case file.</p>`;
+  $("#casefile").innerHTML=u?`<div class="casefile"><div><b>Key clues</b><ul>${u.clues.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div><div class="evidence"><b>Evidence (new information)</b>${u.evidence.map(e=>`<p>${esc(e)}</p>`).join("")}<p class="hint">Look at the photo on your printed card as well.</p></div></div>`:`<p class="hint">Choose a mystery user first.</p>`;
+  $("#secHint").textContent=u?`Where to start for mystery user #${u.id}: ${u.sec}`:"Choose a mystery user to get a starting point.";
+  $("#paHint").textContent=u?`Product 1 for your user: their current ${u.product}.`:"Choose a mystery user first.";
+  renderSorter();renderPersona();renderPS();
+}
+
+/* clue sorter */
+let picked=null;
+function renderSorter(){
+  const u=U(), pool=$("#pool"), bk=$("#buckets");
+  if(!u){pool.innerHTML='<span class="hint">Choose a mystery user first.</span>';bk.innerHTML="";return}
+  const items=[...u.clues.map(c=>[c,0]),...u.evidence.map(c=>[c,1])];
+  const pl=S.sort[u.id]||(S.sort[u.id]={});
+  const chip=(it,i)=>`<button class="clue${it[1]?" ev":""}${picked===i?" sel":""}" data-i="${i}">${esc(it[0])}</button>`;
+  pool.innerHTML=items.map((it,i)=>pl[i]==null?chip(it,i):"").join("")||'<span class="hint">All clues sorted. Do any belong in more than one box? Discuss.</span>';
+  bk.innerHTML=CATS.map((c,ci)=>`<div class="bucket${picked!=null?" armed":""}" data-c="${ci}" role="button" tabindex="0" aria-label="Place in ${c}"><b>${c}</b>${items.map((it,i)=>pl[i]===ci?chip(it,i):"").join("")}</div>`).join("");
+  pool.querySelectorAll(".clue").forEach(b=>b.onclick=()=>{picked=picked===+b.dataset.i?null:+b.dataset.i;renderSorter()});
+  bk.querySelectorAll(".clue").forEach(b=>b.onclick=e=>{e.stopPropagation();delete pl[b.dataset.i];picked=null;save();renderSorter()});
+  bk.querySelectorAll(".bucket").forEach(b=>{const put=()=>{if(picked==null)return;pl[picked]=+b.dataset.c;picked=null;save();renderSorter()};b.onclick=put;b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();put()}}});
+}
+
+function renderPersona(){
+  const n=F("p-name")||"Unnamed persona";
+  $("#personaCard").innerHTML=`<div class="ph"><div class="av">${esc(n.trim()[0]||"?")}</div><div><h3>${esc(n)}</h3><div class="hint">${esc([F("p-age"),F("p-occ")].filter(Boolean).join(", ")||"Age, occupation")}</div></div></div>
+  <div class="pb"><div><b>Context</b>${esc(F("p-ctx"))}</div><div><b>Goals</b>${esc(F("p-goals"))}</div><div><b>Behaviours</b>${esc(F("p-beh"))}</div><div><b>Frustrations</b>${esc(F("p-frus"))}</div><div><b>Needs</b>${esc(F("p-needs"))}</div><div><b>User group</b>${esc(U()?U().role:"")}</div></div>
+  <blockquote>${F("p-quote")?"“"+esc(F("p-quote"))+"”":"Add a quote from the evidence."}</blockquote>`;
+}
+
+function renderPS(){
+  const w=F("ps-who"),n=F("ps-need"),b=F("ps-why"),c=F("ps-ctx");
+  const st=`${w||"[who]"} needs a way to ${n||"[need]"} because ${b||"[insight]"}${c?` when ${c}`:""}.`;
+  const hmw=`How might we help ${w||"[who]"} ${n||"[need]"}${c?` when ${c}`:""}?`;
+  const all=(w+" "+n).toLowerCase();
+  const hits=SOLWORDS.filter(s=>new RegExp("\\b"+s+"\\b").test(all));
+  $("#psPreview").innerHTML=`<p class="lead">${esc(st)}</p><p>${esc(hmw)}</p>`+(hits.length?`<span class="flag">This names a solution ("${esc(hits.join('", "'))}"). Describe the need instead so you stay open to different ideas.</span>`:(w&&n&&b?`<span class="ok">Names the user, the need and the evidence. Good.</span>`:""));
+}
+
+/* emotion curve */
+function renderEmo(){
+  const pts=[1,2,3,4,5,6].map(i=>[40+(i-1)*104,100-(+(S.f["sbe"+i]??0))*35,!!S.f["sbp"+i]]);
+  $("#emo").innerHTML=`<svg viewBox="0 0 600 200" role="img" aria-label="Emotion curve across six frames">
+   <line x1="30" x2="580" y1="100" y2="100" stroke="var(--line)" stroke-dasharray="4 4"/>
+   <text x="2" y="34" font-size="13" fill="var(--muted)">Happy</text><text x="2" y="176" font-size="13" fill="var(--muted)">Upset</text>
+   <polyline fill="none" stroke="var(--Ad)" stroke-width="4" stroke-linejoin="round" points="${pts.map(p=>p[0]+","+p[1]).join(" ")}"/>
+   ${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]?11:7}" fill="${p[2]?"var(--bad)":"var(--A)"}"/><text x="${p[0]}" y="196" text-anchor="middle" font-size="13" fill="var(--muted)">${i+1}</text>`).join("")}</svg>`;
+}
+
+/* specs */
+function specFlag(t){const l=t.toLowerCase();if(!t.trim())return"";const v=VAGUE.filter(w=>new RegExp("\\b"+w+"\\b").test(l));return v.length&&!/\d/.test(t)?`"${v.join('", "')}" needs a measurable value or a test.`:""}
+function renderSpecs(){
+  const tb=$("#specRows");
+  const cats=["Function","User and ergonomics","Aesthetics","Size and weight","Materials","Safety","Environment","Cost"];
+  tb.innerHTML=S.specs.map((s,i)=>`<tr><td>${i+1}</td>
+   <td><select data-k="cat" data-i="${i}"><option value="">Choose</option>${cats.map(c=>`<option${s.cat===c?" selected":""}>${c}</option>`).join("")}</select></td>
+   <td><textarea data-k="text" data-i="${i}">${esc(s.text)}</textarea><span class="flag" id="sf${i}">${esc(specFlag(s.text||""))}</span></td>
+   <td><select data-k="ed" data-i="${i}"><option value="">Choose</option><option${s.ed==="Essential"?" selected":""}>Essential</option><option${s.ed==="Desirable"?" selected":""}>Desirable</option></select></td>
+   <td><input type="text" data-k="src" data-i="${i}" value="${esc(s.src)}" placeholder="e.g. A3 interview, A4 source 1"></td>
+   <td><input type="text" data-k="test" data-i="${i}" value="${esc(s.test)}"></td>
+   <td><button class="x" data-del="${i}" aria-label="Remove specification ${i+1}">✕</button></td></tr>`).join("");
+  tb.querySelectorAll("[data-k]").forEach(el=>{const h=()=>{S.specs[el.dataset.i][el.dataset.k]=el.value;save();if(el.dataset.k==="text")$("#sf"+el.dataset.i).textContent=specFlag(el.value);if(el.dataset.k!=="src"&&el.dataset.k!=="test")renderMatrix()};el.addEventListener("input",h);el.addEventListener("change",h)});
+  tb.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.specs.splice(+b.dataset.del,1);save();renderSpecs();renderMatrix()});
+}
+$("#specAdd").onclick=()=>{S.specs.push({cat:"",text:"",ed:"",src:"",test:""});save();renderSpecs()};
+
+/* matrix */
+function renderMatrix(){
+  const ideas=[F("sh1"),F("sh2"),F("sh3")].map((n,i)=>n||`Idea ${i+1}`);
+  const specs=S.specs.map((s,i)=>({...s,n:i+1})).filter(s=>s.ed==="Essential"&&s.text);
+  if(!specs.length){$("#matrix").innerHTML='<p class="hint">Mark at least one specification as Essential in B2 to build the matrix.</p>';return}
+  const tot=ideas.map((_,j)=>specs.reduce((a,s)=>a+(+S.scores[s.n+"-"+j]||0),0));
+  const best=Math.max(...tot);
+  $("#matrix").innerHTML=`<table><tr><th>Essential specification</th>${ideas.map(n=>`<th>${esc(n)}</th>`).join("")}</tr>
+  ${specs.map(s=>`<tr><td>${s.n}. ${esc(s.text)}</td>${ideas.map((_,j)=>`<td><select data-sc="${s.n}-${j}" aria-label="Score">${[0,1,2,3].map(v=>`<option${+S.scores[s.n+"-"+j]===v?" selected":""}>${v}</option>`).join("")}</select></td>`).join("")}</tr>`).join("")}
+  <tr><th>Total</th>${tot.map(t=>`<td class="${t===best&&best>0?"winner":""}">${t} / ${specs.length*3}</td>`).join("")}</tr></table>`;
+  $$("#matrix [data-sc]").forEach(el=>el.onchange=()=>{S.scores[el.dataset.sc]=+el.value;save();renderMatrix()});
+}
+
+/* iterations */
+function renderIters(){
+  const tb=$("#iterRows");const k=[["v","input"],["m","textarea"],["t","textarea"],["r","textarea"],["n","textarea"],["s","input"]];
+  tb.innerHTML=S.iters.map((it,i)=>`<tr>${k.map(([f,t])=>`<td>${t==="input"?`<input type="text" data-ik="${f}" data-i="${i}" value="${esc(it[f])}">`:`<textarea data-ik="${f}" data-i="${i}">${esc(it[f])}</textarea>`}</td>`).join("")}<td><button class="x" data-idel="${i}" aria-label="Remove iteration">✕</button></td></tr>`).join("");
+  tb.querySelectorAll("[data-ik]").forEach(el=>el.addEventListener("input",()=>{S.iters[el.dataset.i][el.dataset.ik]=el.value;save()}));
+  tb.querySelectorAll("[data-idel]").forEach(b=>b.onclick=()=>{S.iters.splice(+b.dataset.idel,1);save();renderIters()});
+}
+$("#iterAdd").onclick=()=>{S.iters.push({v:"V"+(S.iters.length+1),m:"",t:"",r:"",n:"",s:""});save();renderIters()};
+
+/* A0 ordering */
+let shuffled=[0,1,2,3,4].sort(()=>Math.random()-.5);
+function renderOrder(){
+  $("#orderPool").innerHTML=shuffled.map(i=>`<button class="ocard" data-o="${i}" ${S.order.includes(i)?"disabled":""}>${esc(STAGES[i][2])}</button>`).join("");
+  $("#orderSlots").innerHTML=[0,1,2,3,4].map(p=>{const i=S.order[p];return `<div class="slot" id="slot${p}"><b>Step ${p+1}</b>${i!=null?esc(STAGES[i][2]):""}</div>`}).join("");
+  $$("#orderPool .ocard").forEach(b=>b.onclick=()=>{if(S.order.length<5){S.order.push(+b.dataset.o);save();renderOrder()}});
+}
+$("#orderCheck").onclick=()=>{let ok=0;[0,1,2,3,4].forEach(p=>{const r=S.order[p]===p;if(r)ok++;const el=$("#slot"+p);el.classList.toggle("right",r);el.classList.toggle("wrong",S.order[p]!=null&&!r);if(r)el.querySelector("b").textContent=`Step ${p+1}: ${STAGES[p][1]}`});$("#orderMsg").textContent=ok===5?"All five in order. Now say what happens in each stage.":`${ok} of 5 in the right place.`};
+$("#orderReset").onclick=()=>{S.order=[];save();shuffled.sort(()=>Math.random()-.5);renderOrder();$("#orderMsg").textContent=""};
+
+/* research sorter check */
+$("#rsCheck").onclick=()=>{let ok=0;RS.forEach((r,i)=>{const a=S.f["rs"+i+"p"]===r[1]&&S.f["rs"+i+"q"]===r[2];if(a)ok++;const m=$("#rsm"+i);m.textContent=a?"✓":"✗";m.style.color=a?"var(--good)":"var(--bad)"});$("#rsMsg").textContent=`${ok} of ${RS.length} fully correct. For any ✗, argue your case. Some are debatable, which is worth discussing.`};
+
+/* SCAMPER, challenge cards */
+$("#scamperBtn").onclick=()=>{const s=SCAMPER[Math.floor(Math.random()*SCAMPER.length)];const p=U()?U().product:"existing product";$("#scamper").textContent=`${s[0]}: ${s[1].replace("{p}",p)}`};
+$("#chalBtn").onclick=()=>{$("#chal").textContent=CHAL[Math.floor(Math.random()*CHAL.length)]};
+
+/* timers */
+let actx;
+function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+.35)}catch(e){}}
+$$(".timer").forEach(t=>{
+  const total=+t.dataset.sec;let left=total,iv=null;const out=t.querySelector("output"),go=t.querySelector('[data-t="go"]');const label=go.textContent;
+  const fmt=()=>{out.textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}`;t.classList.toggle("over",left<=0)};
+  go.onclick=()=>{if(iv){clearInterval(iv);iv=null;go.textContent="Resume";return}go.textContent="Pause";iv=setInterval(()=>{left--;fmt();if(total===480&&left>0&&left%60===0)beep();if(left<=0){clearInterval(iv);iv=null;beep();go.textContent=label}},1000)};
+  t.querySelector('[data-t="reset"]').onclick=()=>{clearInterval(iv);iv=null;left=total;go.textContent=label;fmt()};
+});
+
+/* teacher mode */
+$("#tBtn").onclick=()=>{const on=document.body.classList.toggle("tmode");$("#tBtn").setAttribute("aria-pressed",on)};
+
+/* journal */
+function block(t,v){return v&&String(v).trim()?`<h3>${esc(t)}</h3><p>${esc(v)}</p>`:""}
+$("#jBtn").onclick=()=>{
+  const u=U();
+  $("#jTitle").textContent=(F("team")||"Team")+" journal";
+  let h=u?`<p><b>Mystery user #${u.id}:</b> ${esc(u.role)}, ${u.age}</p>`:"";
+  h+=block("Persona",[F("p-name"),F("p-age"),F("p-occ")].filter(Boolean).join(", ")+(F("p-needs")?"\nNeeds: "+F("p-needs"):"")+(F("p-frus")?"\nFrustrations: "+F("p-frus"):"")+(F("p-quote")?"\nQuote: “"+F("p-quote")+"”":""));
+  h+=block("Primary research analysis",F("pr-analysis"));
+  h+=block("Persona upgrade",F("p-upgrade"));
+  h+=block("Biggest pain point and opportunity",F("sb-opp"));
+  h+=block("Problem statement",F("ps-final"));
+  const sp=S.specs.filter(s=>s.text);
+  if(sp.length)h+=`<h3>Specification</h3><ol>${sp.map(s=>`<li>${esc(s.text)} (${esc(s.ed||"?")}${s.test?"; test: "+esc(s.test):""})</li>`).join("")}</ol>`;
+  h+=block("Chosen idea",F("chosen"));
+  const it=S.iters.filter(i=>i.t||i.r||i.n);
+  if(it.length)h+=`<h3>Iterations</h3><ol>${it.map(i=>`<li>${esc(i.v)}: tested ${esc(i.t)}. Result: ${esc(i.r)}. Next: ${esc(i.n)}</li>`).join("")}</ol>`;
+  h+=block("Virtual prototype",[F("vp-sw"),F("vp-link")].filter(Boolean).join(", "));
+  h+=block("Pitch",[1,2,3,4,5,6].map(i=>F("pt"+i)).filter(Boolean).join("\n"));
+  h+=block("Design process outline",["A","B","C","D","E"].map((s,i)=>F("ol-"+s)?STAGES[i][1]+": "+F("ol-"+s):"").filter(Boolean).join("\n"));
+  $("#jBody").innerHTML=h||'<p class="hint">Nothing recorded yet. Start with A1 Persona detective.</p>';
+  $("#journal").showModal();
+};
+$("#jClose").onclick=()=>$("#journal").close();
+$("#jPrint").onclick=()=>window.print();
+window.addEventListener("beforeprint",()=>$$("details.act").forEach(d=>d.open=true));
+$("#wipe").onclick=()=>{if(confirm("Clear all of your team's work on this device? This can't be undone.")){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}};
+
+renderUser();renderSpecs();renderMatrix();renderIters();renderOrder();renderEmo();showStage();
+</script>
+</body>
+</html>

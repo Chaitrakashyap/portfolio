@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulation and material testing — DP Design &amp; Technology — Chaitra R</title>
+  <meta name="description" content="IB DP Design and Technology lesson presentations, interactive tools, simulations, and student work by Chaitra R.">
+  <script>try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="top">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo"><span class="logo-mark" aria-hidden="true">C</span>Chaitra R</a>
+      <nav class="nav" id="menu" aria-label="Main">
+        <a href="about.html">About</a>
+        <a href="myp.html">MYP Design</a>
+        <a href="dp.html" aria-current="page">DP Design &amp; Technology</a>
+        <a href="initiatives.html">Other initiatives</a>
+        <a href="index.html#recommendations">Recommendations</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggle" aria-label="Switch to dark mode" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <a class="resume-btn" href="assets/Chaitra_R_CV.pdf" target="_blank" rel="noopener">Resume</a>
+        <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container reveal">
+        <a class="arrow-link back" href="dp.html#student-work"><span class="arr" aria-hidden="true">←</span> DP Design &amp; Technology</a>
+        <p class="page-label">Student work</p>
+        <h1>Simulation and material testing</h1>
+        <p class="lead">Virtual tensile tests on steel and magnesium alloy, and stress–strain curves that compare how different materials behave under load.</p>
+        <div class="subnav" aria-label="Other categories">
+          <a href="dp-cad.html">CAD modelling</a>
+          <a href="dp-fea.html">Finite element analysis</a>
+          <a href="dp-3d-printing.html">3D print preparation</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section cream">
+      <div class="container">
+        <div class="gallery-group">
+          <div class="gallery-head reveal">
+            <h3>Material testing and stress–strain analysis</h3>
+            <div><p>Virtual tensile tests on steel and magnesium alloy (MgAZ31), with stress–strain curves comparing steel, glass epoxy, and ABS.</p><div class="chips"><span class="chip">Tensile testing</span><span class="chip">Material properties</span></div></div>
+          </div>
+          <div class="gallery contain reveal">
+            <figure><button class="shot" aria-label="View larger: Tensile test, steel"><img src="assets/simulations/tensile-test-steel.jpg" alt="Virtual tensile test machine with force–displacement curve for a steel sample" loading="lazy"></button><figcaption>Tensile test — steel, force vs displacement</figcaption></figure>
+            <figure><button class="shot" aria-label="View larger: Tensile test, MgAZ31"><img src="assets/simulations/tensile-test-mgaz31.jpg" alt="Virtual tensile test machine with force–displacement curve for a MgAZ31 magnesium alloy sample" loading="lazy"></button><figcaption>Tensile test — MgAZ31 magnesium alloy</figcaption></figure>
+            <figure><button class="shot" aria-label="View larger: Steel stress–strain curve"><img src="assets/simulations/stress-strain-steel.jpg" alt="Stress–strain curve for steel with ultimate stress of 1303.97 MPa at strain 0.1030" loading="lazy"></button><figcaption>Steel — ultimate stress 1303.97 MPa at 0.103 strain</figcaption></figure>
+            <figure><button class="shot" aria-label="View larger: Glass epoxy stress–strain curve"><img src="assets/simulations/stress-strain-glass-epoxy.jpg" alt="Stress–strain curve for glass epoxy with ultimate stress of 323.63 MPa at strain 0.0262" loading="lazy"></button><figcaption>Glass epoxy — ultimate stress 323.63 MPa, brittle failure</figcaption></figure>
+            <figure><button class="shot" aria-label="View larger: Comparative stress–strain curves"><img src="assets/simulations/stress-strain-comparison.jpg" alt="Comparative stress–strain curves for ABS, glass epoxy, and steel" loading="lazy"></button><figcaption>Comparison — ABS vs glass epoxy vs steel</figcaption></figure>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="contact-block" id="contact">
+    <div class="container">
+      <h2 class="reveal">Get in touch, and let's design <em>better learning</em> together.</h2>
+      <div class="actions">
+        <a class="btn-pill" href="mailto:chaitrakashyap09@gmail.com">Send a message <span aria-hidden="true">→</span></a>
+        <button class="copy-email" id="copyEmail" data-email="chaitrakashyap09@gmail.com">chaitrakashyap09@gmail.com <span class="copy-hint" id="copyHint">Copy</span></button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>Location</h4><p>Hyderabad, Telangana, India</p></div>
+        <div><h4>Email</h4><a href="mailto:chaitrakashyap09@gmail.com">chaitrakashyap09@gmail.com</a></div>
+        <div>
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="https://www.linkedin.com/in/chaitra-r-297427243" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="https://learn.suraasa.com/profile/chaitra-r" target="_blank" rel="noopener">Suraasa profile</a></li>
+            <li><a href="https://github.com/Chaitrakashyap" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="assets/Chaitra_R_CV.pdf" target="_blank" rel="noopener">Resume (PDF)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>© <span id="year">2026</span> Chaitra R</span><a href="#top">Back to top ↑</a></div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" hidden>
+    <button class="lb-btn lb-close" id="lbClose" aria-label="Close">✕</button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Previous image">‹</button>
+    <figure class="lb-figure">
+      <img id="lbImg" alt="">
+      <figcaption id="lbCaption"></figcaption>
+    </figure>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Next image">›</button>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

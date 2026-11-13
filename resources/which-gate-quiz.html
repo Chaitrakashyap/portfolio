@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Which Gate? Logic Gate Scenario Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F1; --panel:#FFFFFF; --ink:#16263B; --muted:#55657A; --line:#C9D5D1;
+  --wire:#D9A21B; --ok:#1F9D55; --ok-soft:#DDF3E6; --bad:#C93C3C; --bad-soft:#F8E1E1;
+  --led-off:#C2CCC9; --btn:#F6F9F8; --btn-hover:#E6EEEB;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1A24; --panel:#172532; --ink:#E6EEF2; --muted:#9AAABA; --line:#2C3E4E;
+    --wire:#F0BD3A; --ok:#3CCB78; --ok-soft:#173A2A; --bad:#F06464; --bad-soft:#40202A;
+    --led-off:#2F4150; --btn:#1D2E3D; --btn-hover:#253A4C; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1A24; --panel:#172532; --ink:#E6EEF2; --muted:#9AAABA; --line:#2C3E4E;
+  --wire:#F0BD3A; --ok:#3CCB78; --ok-soft:#173A2A; --bad:#F06464; --bad-soft:#40202A;
+  --led-off:#2F4150; --btn:#1D2E3D; --btn-hover:#253A4C; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:1.05rem;line-height:1.55}
+main{max-width:46rem;margin:0 auto;padding:1.5rem 1rem 3rem}
+h1,h2{font-family:"Chakra Petch","Atkinson Hyperlegible",system-ui,sans-serif;margin:0;line-height:1.15}
+h1{font-size:clamp(1.9rem,6vw,2.6rem)}
+.intro{color:var(--muted);margin:.4rem 0 1.2rem;max-width:38rem}
+.leds{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.4rem;align-items:center}
+.led{width:16px;height:16px;border-radius:50%;background:var(--led-off);border:2px solid var(--line);transition:background .25s, box-shadow .25s}
+.led.now{border-color:var(--wire)}
+.led.ok{background:var(--ok);border-color:var(--ok);box-shadow:0 0 8px var(--ok)}
+.led.bad{background:var(--bad);border-color:var(--bad);box-shadow:0 0 8px var(--bad)}
+.score{margin-left:auto;font-family:"Chakra Petch",sans-serif;font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--wire);border-radius:6px;padding:1.2rem 1.2rem 1.4rem}
+.qnum{color:var(--muted);font-size:.95rem;margin:0 0 .3rem}
+.scenario{font-size:1.15rem;margin:0 0 .9rem}
+.io{display:grid;gap:.25rem;margin:0 0 1.1rem;padding:.7rem .9rem;border-radius:4px;background:var(--btn);font-size:.97rem}
+.io b{font-family:"Chakra Petch",sans-serif}
+.ask{font-weight:700;margin:0 0 .7rem}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr));gap:.6rem}
+.opt{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.6rem .4rem .55rem;
+  background:var(--btn);color:var(--ink);border:2px solid var(--line);border-radius:6px;cursor:pointer;
+  font:700 1rem "Chakra Petch",sans-serif;transition:background .15s,border-color .15s}
+.opt:hover:not(:disabled){background:var(--btn-hover);border-color:var(--wire)}
+.opt:focus-visible,.next:focus-visible{outline:3px solid var(--wire);outline-offset:2px}
+.opt:disabled{cursor:default}
+.opt svg{width:90px;height:54px}
+.opt svg *{stroke:currentColor;fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.dim{opacity:.45}
+.feedback{margin-top:1.1rem;padding:1rem;border-radius:6px}
+.feedback.ok{background:var(--ok-soft);border:1px solid var(--ok)}
+.feedback.bad{background:var(--bad-soft);border:1px solid var(--bad)}
+.feedback h2{font-size:1.3rem;margin-bottom:.35rem}
+.feedback.ok h2{color:var(--ok)} .feedback.bad h2{color:var(--bad)}
+.feedback p{margin:.3rem 0}
+.tt-wrap{overflow-x:auto;margin:.7rem 0 .2rem}
+table{border-collapse:collapse;font-size:.95rem;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:.3rem .7rem;text-align:center}
+th{font-family:"Chakra Petch",sans-serif}
+td.hi{font-weight:700;color:var(--ok)}
+.next{margin-top:.9rem;padding:.65rem 1.3rem;border:0;border-radius:6px;background:var(--ink);color:var(--panel);
+  font:700 1rem "Chakra Petch",sans-serif;cursor:pointer}
+.review{margin:1rem 0;padding:0;list-style:none;display:grid;gap:.6rem}
+.review li{padding:.7rem .9rem;border-radius:6px;background:var(--btn);border-left:4px solid var(--bad)}
+.big{font:700 clamp(2.4rem,9vw,3.4rem) "Chakra Petch",sans-serif;margin:.3rem 0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Which gate?</h1>
+  <p class="intro">Read each real-world situation, work out when the output should be ON, and pick the logic gate that does the job. Tip: sketch the truth table in your head first.</p>
+  <div class="leds" id="leds" aria-label="Progress"></div>
+  <div id="app"></div>
+</main>
+
+<script>
+const GATES = {
+  AND:  {fn:(a,b)=>a&&b,   rule:"Output is 1 only when ALL inputs are 1."},
+  OR:   {fn:(a,b)=>a||b,   rule:"Output is 1 when AT LEAST ONE input is 1."},
+  NOT:  {fn:(a)=>!a,       rule:"Single input; the output is the opposite of the input."},
+  NAND: {fn:(a,b)=>!(a&&b),rule:"Opposite of AND: output is 0 only when ALL inputs are 1."},
+  NOR:  {fn:(a,b)=>!(a||b),rule:"Opposite of OR: output is 1 only when NO input is 1."},
+  XOR:  {fn:(a,b)=>a!==b,  rule:"Output is 1 when the inputs are DIFFERENT (exactly one is 1)."},
+  XNOR: {fn:(a,b)=>a===b,  rule:"Opposite of XOR: output is 1 when the inputs are the SAME."}
+};
+const ORDER = ["AND","OR","NOT","NAND","NOR","XOR","XNOR"];
+
+function gateSVG(g){
+  const andBody = '<path d="M20 10 H48 A20 20 0 0 1 48 50 H20 Z"/>';
+  const orBody  = '<path d="M24 10 Q48 10 76 30 Q48 50 24 50 Q36 30 24 10 Z"/>';
+  const in2 = x => `<path d="M2 20 H${x}"/><path d="M2 40 H${x}"/>`;
+  const bub = cx => `<circle cx="${cx}" cy="30" r="4"/>`;
+  const out = x => `<path d="M${x} 30 H98"/>`;
+  const map = {
+    AND:  in2(20)+andBody+out(68),
+    NAND: in2(20)+andBody+bub(72)+out(76),
+    OR:   in2(31)+orBody+out(76),
+    NOR:  in2(31)+orBody+bub(80)+out(84),
+    XOR:  in2(21)+'<path d="M15 10 Q27 30 15 50"/>'+orBody+out(76),
+    XNOR: in2(21)+'<path d="M15 10 Q27 30 15 50"/>'+orBody+bub(80)+out(84),
+    NOT:  '<path d="M2 30 H26"/><path d="M26 12 L66 30 L26 48 Z"/>'+bub(70)+out(74)
+  };
+  return `<svg viewBox="0 0 100 60" aria-hidden="true">${map[g]}</svg>`;
+}
+
+const QUESTIONS = [
+  {g:"AND", s:"A bank locker opens only when the manager turns their key and the customer turns their key at the same time.",
+   a:"Manager's key turned", b:"Customer's key turned", o:"Locker opens",
+   why:"The locker needs both keys. If either key is missing, it stays shut."},
+  {g:"AND", s:"A 3D printer will only start printing if the safety door is closed and the filament sensor detects filament.",
+   a:"Door closed", b:"Filament detected", o:"Printer starts",
+   why:"Both safety conditions must be true together, so the output is 1 only for 1 and 1."},
+  {g:"OR", s:"A car's interior light switches on if the driver's door or the passenger's door is open.",
+   a:"Driver door open", b:"Passenger door open", o:"Light on",
+   why:"Any one open door is enough. Both open also keeps the light on."},
+  {g:"OR", s:"The school fire alarm must sound if the smoke detector is triggered or someone presses the manual break-glass switch.",
+   a:"Smoke detected", b:"Break-glass pressed", o:"Alarm sounds",
+   why:"Either input alone should trigger the alarm, and both together must too."},
+  {g:"NOT", s:"A garden lamp has one light sensor. The lamp should switch on when the sensor does not detect daylight.",
+   a:"Daylight detected", b:null, o:"Lamp on",
+   why:"There is only one input and the lamp does the opposite of it: daylight 1 gives lamp 0."},
+  {g:"NOT", s:"A seatbelt sensor gives 1 when the belt is fastened. A warning buzzer must sound when the belt is not fastened.",
+   a:"Belt fastened", b:null, o:"Buzzer sounds",
+   why:"One input, inverted output: belt fastened (1) means buzzer off (0)."},
+  {g:"NAND", s:"A water plant has two pumps. A red warning light stays on unless both pumps are running.",
+   a:"Pump 1 running", b:"Pump 2 running", o:"Warning light on",
+   why:"The light only goes OFF when both pumps run (1, 1). That is AND followed by NOT."},
+  {g:"NAND", s:"An oven shows a 'not ready' light. It goes off only when the temperature sensor and the preheat timer both signal ready.",
+   a:"Temperature ready", b:"Timer ready", o:"'Not ready' light on",
+   why:"Output is 0 only when both inputs are 1, which is exactly the NAND truth table."},
+  {g:"NOR", s:"A library 'quiet zone' green light is on only when neither of two motion sensors detects movement.",
+   a:"Sensor 1 detects motion", b:"Sensor 2 detects motion", o:"Green light on",
+   why:"Any movement on either sensor turns the light off. It is only on for 0 and 0."},
+  {g:"NOR", s:"A floor-cleaning robot keeps driving forward only when neither its left nor its right bump switch is pressed.",
+   a:"Left bump pressed", b:"Right bump pressed", o:"Drive forward",
+   why:"One bump or both bumps stop the robot. Only no bumps (0, 0) gives 1. That is OR followed by NOT."},
+  {g:"XOR", s:"A staircase light has a switch at the bottom and the top. The light is on when exactly one switch is in the up position.",
+   a:"Bottom switch up", b:"Top switch up", o:"Light on",
+   why:"Flipping either switch toggles the light. Inputs that differ give 1; inputs that match give 0."},
+  {g:"XOR", s:"In a two-team quiz buzzer, a 'valid buzz' lamp lights if exactly one team presses. If both press together it is a tie and the lamp stays off.",
+   a:"Team A presses", b:"Team B presses", o:"Valid buzz lamp",
+   why:"One press gives 1, but both presses give 0. That rules out OR and points to XOR."},
+  {g:"XNOR", s:"A security keypad compares a stored code bit with the entered bit. A 'match' light turns on when the two bits are the same.",
+   a:"Stored bit", b:"Entered bit", o:"Match light on",
+   why:"0 and 0 match, 1 and 1 match. The light is on whenever the inputs are equal."},
+  {g:"XNOR", s:"Two conveyor belts must stay in sync. A green 'synced' lamp shows when both belts are running or both belts are stopped.",
+   a:"Belt 1 running", b:"Belt 2 running", o:"Synced lamp on",
+   why:"Both on or both off gives 1. Different states give 0, the opposite of XOR."}
+];
+
+let deck=[], idx=0, results=[];
+
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function drawLeds(){
+  const el=document.getElementById("leds");
+  el.innerHTML = deck.map((_,i)=>{
+    const r=results[i]; let c="led";
+    if(r===true)c+=" ok"; else if(r===false)c+=" bad"; else if(i===idx)c+=" now";
+    return `<span class="${c}"></span>`;
+  }).join("") + `<span class="score">${results.filter(x=>x).length} / ${deck.length}</span>`;
+}
+
+function truthTable(q){
+  const f=GATES[q.g].fn;
+  const head = q.b ? `<th>A</th><th>B</th>` : `<th>A</th>`;
+  let rows="";
+  const combos = q.b ? [[0,0],[0,1],[1,0],[1,1]] : [[0],[1]];
+  combos.forEach(c=>{
+    const out = f(!!c[0],!!c[1]) ? 1 : 0;
+    rows += `<tr>${c.map(v=>`<td>${v}</td>`).join("")}<td class="${out?'hi':''}">${out}</td></tr>`;
+  });
+  return `<div class="tt-wrap"><table><tr>${head}<th>Output</th></tr>${rows}</table></div>`;
+}
+
+function render(){
+  drawLeds();
+  if(idx>=deck.length) return finish();
+  const q=deck[idx];
+  const io = `<div class="io"><span><b>A</b> = ${q.a}</span>${q.b?`<span><b>B</b> = ${q.b}</span>`:""}<span><b>Output</b> = ${q.o}</span></div>`;
+  document.getElementById("app").innerHTML = `
+    <section class="card">
+      <p class="qnum">Scenario ${idx+1} of ${deck.length}</p>
+      <p class="scenario">${q.s}</p>
+      ${io}
+      <p class="ask">Which gate should you use?</p>
+      <div class="opts">${ORDER.map(g=>`<button class="opt" data-g="${g}">${gateSVG(g)}${g}</button>`).join("")}</div>
+      <div id="fb"></div>
+    </section>`;
+  document.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>answer(b.dataset.g)));
+}
+
+function answer(pick){
+  const q=deck[idx], ok = pick===q.g;
+  results[idx]=ok;
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.g===q.g) b.classList.add("right");
+    else if(b.dataset.g===pick) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  const fb=document.getElementById("fb");
+  fb.innerHTML = `
+    <div class="feedback ${ok?'ok':'bad'}" role="status">
+      <h2>${ok?'Correct!':'Not quite. The right answer is '+q.g+'.'}</h2>
+      ${ok?'':`<p>You chose ${pick}: ${GATES[pick].rule}</p>`}
+      <p><b>${q.g}:</b> ${GATES[q.g].rule}</p>
+      <p>${q.why}</p>
+      ${truthTable(q)}
+      <button class="next">${idx===deck.length-1?'See my results':'Next scenario'}</button>
+    </div>`;
+  drawLeds();
+  const next=fb.querySelector(".next");
+  next.addEventListener("click",()=>{idx++;render();window.scrollTo({top:0,behavior:"smooth"});});
+  next.focus({preventScroll:true});
+  fb.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function finish(){
+  const score=results.filter(x=>x).length;
+  const missed=deck.map((q,i)=>({q,ok:results[i]})).filter(x=>!x.ok);
+  let msg = score===deck.length ? "Perfect score. You can read a scenario and see the gate straight away."
+          : score>=10 ? "Strong work. Review the ones you missed below."
+          : "Good effort. Go through the misses, then try again to beat your score.";
+  document.getElementById("app").innerHTML = `
+    <section class="card">
+      <h2>Your results</h2>
+      <p class="big">${score} / ${deck.length}</p>
+      <p>${msg}</p>
+      ${missed.length?`<h2 style="font-size:1.15rem;margin-top:1rem">Scenarios to review</h2>
+      <ul class="review">${missed.map(m=>`<li>${m.q.s}<br><b>Answer: ${m.q.g}</b>. ${m.q.why}</li>`).join("")}</ul>`:""}
+      <button class="next" id="again">Try again with a new order</button>
+    </section>`;
+  document.getElementById("again").addEventListener("click",start);
+}
+
+function start(){deck=shuffle(QUESTIONS);idx=0;results=[];render();}
+start();
+</script>
+</body>
+</html>
