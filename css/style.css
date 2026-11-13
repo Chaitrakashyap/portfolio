@@ -222,6 +222,29 @@ h4 { font-size: 15px; font-weight: 600; color: var(--muted); margin-bottom: 12px
 .char-count { font-size: 12px; color: var(--faint); white-space: nowrap; }
 .form .btn { align-self: flex-start; }
 
+/* Photo thumbnails and T-Works feature */
+.ph-img { padding: 0; overflow: hidden; border-style: solid; }
+.ph-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-body .link { display: inline-block; margin-top: 4px; }
+.feature { display: grid; grid-template-columns: 1fr 1.6fr; gap: 56px; margin-top: 80px; padding-top: 64px; border-top: 1px solid var(--line); scroll-margin-top: 80px; }
+.feature-text h3 { font-size: 28px; line-height: 1.25; letter-spacing: -0.01em; margin-bottom: 16px; }
+.feature-text p { color: var(--muted); font-size: 16px; margin-bottom: 14px; }
+.feature-text strong { color: var(--ink); font-weight: 600; }
+.feature-text .tags { flex-wrap: wrap; }
+.feature-text .note { font-size: 13px; color: var(--faint); }
+.gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; align-content: start; }
+.gallery figure { display: flex; flex-direction: column; gap: 8px; }
+.gallery .g-wide { grid-column: 1 / -1; }
+.gallery figcaption { font-size: 13px; color: var(--muted); }
+.g-open { display: block; padding: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: zoom-in; background: var(--ph); }
+.g-open img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; transition: transform 0.4s; }
+.g-open:hover img { transform: scale(1.04); }
+.lightbox { margin: auto; border: 0; padding: 0; background: transparent; max-width: min(1200px, 94vw); color: #fff; }
+.lightbox::backdrop { background: rgba(10, 8, 18, 0.88); }
+.lightbox img { display: block; width: auto; height: auto; max-width: 100%; max-height: 82vh; border-radius: 12px; }
+.lightbox p { margin-top: 10px; font-size: 14px; text-align: center; }
+.lightbox-close { position: absolute; top: 10px; right: 10px; }
+
 /* Footer */
 .footer { display: flex; justify-content: space-between; padding: 32px var(--pad-x); background: var(--footer-bg); color: var(--footer-ink); font-size: 14px; }
 .footer a:hover { color: var(--accent); }
@@ -252,6 +275,7 @@ h4 { font-size: 15px; font-weight: 600; color: var(--muted); margin-bottom: 12px
   .ph-photo { width: 300px; }
   .grid { grid-template-columns: repeat(2, 1fr); }
   .links { gap: 20px; }
+  .feature { grid-template-columns: 1fr; gap: 32px; }
 }
 
 /* Mobile */
@@ -286,6 +310,9 @@ h4 { font-size: 15px; font-weight: 600; color: var(--muted); margin-bottom: 12px
   .filters { margin: 0 0 20px; }
   .grid { grid-template-columns: 1fr; gap: 20px; }
   .ph-thumb { height: 190px; }
+  .feature { margin-top: 48px; padding-top: 40px; }
+  .feature-text h3 { font-size: 22px; }
+  .gallery { gap: 12px; }
   .two-col { grid-template-columns: 1fr; gap: 48px; }
   .form { padding: 20px; }
   .form .btn { align-self: stretch; }

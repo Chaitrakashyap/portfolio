@@ -2,7 +2,7 @@
 
 Personal portfolio of **Chaitra R**, IB MYP/DP Design and Technology facilitator and design engineer based in Hyderabad. Content is taken from my CV (`assets/Chaitra_R_CV.pdf`).
 
-**To do:** add a profile photo and project photos (the circle and card thumbnails are placeholders).
+**To do:** add a profile photo and remaining project photos (the circle and most card thumbnails are placeholders). T-Works bootcamp photos are in `assets/tworks/` with student faces blurred.
 
 - **Figma wireframes:** [Chaitra Portfolio – Wireframes](https://www.figma.com/design/ogidvcCQIWqzkRgioawmCt)
 - **Sections:** Hero · About · Projects · Skills · Experience · Contact

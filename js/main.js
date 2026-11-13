@@ -238,3 +238,22 @@ form.querySelectorAll('input, textarea').forEach((field) => {
 
 // Footer year
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Photo lightbox for the T-Works gallery
+const lightbox = document.getElementById('lightbox');
+if (lightbox && typeof lightbox.showModal === 'function') {
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  document.querySelectorAll('#gallery .g-open').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const img = btn.querySelector('img');
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightboxCaption.textContent = btn.closest('figure').querySelector('figcaption').textContent;
+      lightbox.showModal();
+    });
+  });
+  document.getElementById('lightboxClose').addEventListener('click', () => lightbox.close());
+  // Close when clicking the backdrop
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.close(); });
+}

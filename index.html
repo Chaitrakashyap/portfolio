@@ -112,11 +112,12 @@
           </div>
         </article>
         <article class="card reveal" data-category="workshops">
-          <div class="ph ph-thumb"><span class="thumb-icon" aria-hidden="true">💡</span></div>
+          <div class="ph ph-thumb ph-img"><img src="assets/tworks/tworks-team-presentation.jpg" alt="Student team presenting their cardboard prototype at the T-Works bootcamp" width="1600" height="1066" loading="lazy"></div>
           <div class="card-body">
             <h3>T-Works Great Innovation Challenge</h3>
-            <p>Facilitated a 20-hour, two-phase innovation workshop, extending design thinking beyond the classroom.</p>
+            <p>Facilitated a 20-hour, two-phase innovation bootcamp where student teams built working prototypes, including a food vending machine and a bus storage system.</p>
             <div class="tags"><span class="chip sm">Design thinking</span><span class="chip sm">20 hrs</span></div>
+            <a href="#tworks" class="link">See the bootcamp <span>→</span></a>
           </div>
         </article>
         <article class="card reveal" data-category="workshops">
@@ -135,6 +136,40 @@
             <div class="tags"><span class="chip sm">IB MYP</span><span class="chip sm">2024</span></div>
           </div>
         </article>
+      </div>
+
+      <!-- T-Works bootcamp feature -->
+      <div class="feature" id="tworks">
+        <div class="feature-text reveal">
+          <p class="label">Featured workshop</p>
+          <h3>T-Works Great Innovation Challenge bootcamp</h3>
+          <p>A 20-hour, two-phase bootcamp where student teams picked a real problem, sketched ideas, and built working prototypes from modular cardboard kits, motors, sensors, and microcontrollers.</p>
+          <p>Prototypes included a <strong>food vending machine</strong> and a <strong>bus storage system</strong>. Each team finished with a timed pitch and a live demo for parents and visitors.</p>
+          <div class="tags"><span class="chip sm">Design thinking</span><span class="chip sm">Prototyping</span><span class="chip sm">Electronics</span><span class="chip sm">Pitching</span></div>
+          <p class="note">Student faces are blurred to protect their privacy.</p>
+        </div>
+        <div class="gallery reveal" id="gallery">
+          <figure class="g-wide">
+            <button class="g-open" type="button"><img src="assets/tworks/tworks-mentoring.jpg" alt="Mentoring two students during the bootcamp" width="1600" height="1066" loading="lazy"></button>
+            <figcaption>Mentoring teams through their design decisions</figcaption>
+          </figure>
+          <figure>
+            <button class="g-open" type="button"><img src="assets/tworks/tworks-team-presentation.jpg" alt="Three students giving a timed pitch beside their cardboard prototype" width="1600" height="1066" loading="lazy"></button>
+            <figcaption>A team's timed pitch</figcaption>
+          </figure>
+          <figure>
+            <button class="g-open" type="button"><img src="assets/tworks/tworks-prototype-demo.jpg" alt="Students demonstrating a wheeled cardboard prototype with a laptop" width="1600" height="1066" loading="lazy"></button>
+            <figcaption>Live demo of a working prototype</figcaption>
+          </figure>
+          <figure>
+            <button class="g-open" type="button"><img src="assets/tworks/tworks-showcase-audience.jpg" alt="A student showing her prototype up close to parents in the audience" width="1600" height="1066" loading="lazy"></button>
+            <figcaption>Showing the build up close to parents</figcaption>
+          </figure>
+          <figure>
+            <button class="g-open" type="button"><img src="assets/tworks/tworks-smart-homes.jpg" alt="Four students presenting a prototype made of model houses" width="1600" height="1066" loading="lazy"></button>
+            <figcaption>A team walks through their model</figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
@@ -228,6 +263,12 @@
 
   <button class="to-top" id="toTop" aria-label="Back to top">↑</button>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+    <button class="icon-btn lightbox-close" id="lightboxClose" type="button" aria-label="Close photo">✕</button>
+    <img id="lightboxImg" src="" alt="">
+    <p id="lightboxCaption"></p>
+  </dialog>
 
   <script src="js/main.js"></script>
 </body>
