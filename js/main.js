@@ -205,7 +205,8 @@ document.querySelectorAll('.exp-grid > li').forEach((item) => {
 });
 
 // Swipeable rows on phones get a small hint above them
-document.querySelectorAll('.edu-grid, .skill-grid, #teaching-areas .work-grid, .rec-grid').forEach((row) => {
+document.querySelectorAll('.edu-grid, .skill-grid, #teaching-areas .work-grid, .rec-grid, .gallery:not(.letter-thumb), .tool-grid, .two-grid, .work-grid.four').forEach((row) => {
+  if (row.children.length < 2) return;
   const hint = document.createElement('p');
   hint.className = 'swipe-hint';
   hint.setAttribute('aria-hidden', 'true');

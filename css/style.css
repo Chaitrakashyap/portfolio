@@ -587,3 +587,42 @@ em.accent, .hero h1 em, .statement em, .big-statement em { font-weight: 500; }
   .letter-card { margin-top: 20px; }
 }
 .swipe-hint { display: none; }
+
+/* ---------- Phones: swipeable galleries and card rows on every page ---------- */
+@media (max-width: 640px) {
+  .gallery:not(.letter-thumb), .tool-grid, .two-grid, .work-grid.four {
+    display: grid; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 80%;
+    gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin-left: calc(-1 * var(--pad-x)); margin-right: calc(-1 * var(--pad-x));
+    padding: 0 var(--pad-x) 10px; scroll-padding: 0 var(--pad-x); scrollbar-width: none;
+  }
+  .gallery:not(.letter-thumb)::-webkit-scrollbar, .tool-grid::-webkit-scrollbar, .two-grid::-webkit-scrollbar, .work-grid.four::-webkit-scrollbar { display: none; }
+  .gallery:not(.letter-thumb) > *, .tool-grid > *, .two-grid > *, .work-grid.four > * { scroll-snap-align: start; }
+  .gallery.ep-pages { grid-auto-columns: 58%; }
+  .init-card .gallery:not(.letter-thumb) { margin-left: -22px; margin-right: -22px; padding-left: 22px; padding-right: 22px; scroll-padding: 0 22px; }
+  /* Everything is reachable by swiping, so no See more on phones */
+  .gallery figure.is-hidden { display: flex; }
+  .gallery + .see-more { display: none; }
+
+  /* Tighter text above galleries */
+  .gallery-group + .gallery-group { margin-top: 40px; }
+  .gallery-head { gap: 8px; margin-bottom: 14px; }
+  .gallery-head h3 { font-size: 20px; }
+  .gallery-head p { font-size: 15px; }
+  .gallery-head .chips, .init-head .chips, .tool-card .chips { display: none; }
+  .tool-card p { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .work-grid.four .card-desc { display: none; }
+
+  /* Lesson plan slots in a 2 x 2 grid, compact */
+  .lp-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .lp-slot { min-height: 0; padding: 14px; gap: 8px; flex-direction: column; }
+  .lp-slot h4 { font-size: 16px; }
+
+  /* Other initiatives cards */
+  .init-card { gap: 10px; }
+  .init-card h2 { font-size: 21px; }
+  .photo-slot { min-height: 96px; }
+  .hero.compact { padding: 40px 0 28px; }
+}
+/* Let swipe rows scroll inside their cards instead of widening the page */
+.init-grid > *, .init-card > *, .gallery-group, .panel, .panel > * { min-width: 0; }
