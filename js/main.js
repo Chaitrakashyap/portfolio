@@ -257,3 +257,13 @@ if (lightbox && typeof lightbox.showModal === 'function') {
   // Close when clicking the backdrop
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.close(); });
 }
+
+// Mobile "read more" toggles
+document.querySelectorAll('.m-more').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const box = btn.closest('[data-mcollapse]');
+    const open = box.classList.toggle('expanded');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? btn.dataset.less : btn.dataset.more;
+  });
+});
