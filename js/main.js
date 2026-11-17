@@ -239,12 +239,12 @@ form.querySelectorAll('input, textarea').forEach((field) => {
 // Footer year
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// Photo lightbox for the T-Works gallery
+// Photo lightbox for the photo galleries
 const lightbox = document.getElementById('lightbox');
 if (lightbox && typeof lightbox.showModal === 'function') {
   const lightboxImg = document.getElementById('lightboxImg');
   const lightboxCaption = document.getElementById('lightboxCaption');
-  document.querySelectorAll('#gallery .g-open').forEach((btn) => {
+  document.querySelectorAll('.gallery .g-open').forEach((btn) => {
     btn.addEventListener('click', () => {
       const img = btn.querySelector('img');
       lightboxImg.src = img.src;
