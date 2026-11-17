@@ -430,6 +430,7 @@ em.accent, .hero h1 em, .statement em, .big-statement em { font-weight: 500; }
 
 /* ---------- DP category cards and pages ---------- */
 .work-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.work-grid.five { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .work-card .card-desc { color: var(--muted); font-size: 15px; margin-top: 8px; }
 .work-card .arrow-link { margin-top: 12px; }
 .work-grid.four .work-meta { flex-direction: column; gap: 2px; }
